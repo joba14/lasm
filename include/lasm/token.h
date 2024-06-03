@@ -53,11 +53,8 @@ typedef enum
 	lasm_token_type_informationless_count,
 
 	// Tokens with additional information
-	lasm_token_type_literal_u08
+	lasm_token_type_literal_uval
 		= lasm_token_type_informationless_count,
-	lasm_token_type_literal_u16,
-	lasm_token_type_literal_u32,
-	lasm_token_type_literal_u64,
 	lasm_token_type_literal_rune,
 	lasm_token_type_literal_str,
 	lasm_token_type_identifier,
@@ -90,7 +87,7 @@ typedef struct
 			char_t*  data;
 			uint64_t length;
 		} identifier;
-	};
+	};  // todo: 'as'!
 } lasm_token_s;
 
 /**

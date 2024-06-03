@@ -264,6 +264,7 @@ lasm_lexer_s lasm_lexer_new(lasm_arena_s* const arena, const char_t* const file_
 
 	const uint64_t buffer_capacity = 256;
 	char_t* const buffer = lasm_arena_alloc(arena, buffer_capacity * sizeof(char_t));
+	lasm_debug_assert(buffer != NULL);
 
 	return (lasm_lexer_s)
 	{
@@ -404,6 +405,8 @@ static void append_buffer(lasm_lexer_s* const lexer, const char_t* const buffer,
 	{
 		lexer->buffer.capacity *= 2;
 		char_t* const data = lasm_arena_alloc(lexer->arena, lexer->buffer.capacity);
+		lasm_debug_assert(data != NULL);
+
 		for (uint64_t index = 0; index < lexer->buffer.length; ++index) data[index] = lexer->buffer.data[index];
 		lexer->buffer.data = data;
 	}
@@ -595,6 +598,8 @@ static lasm_token_type_e lex_keyword_or_identifier(lasm_lexer_s* const lexer, la
 
 	token->type = lasm_token_type_identifier;
 	token->identifier.data = lasm_arena_alloc(lexer->arena, lexer->buffer.length);
+	lasm_debug_assert(token->identifier.data != NULL);
+
 	for (uint64_t index = 0; index < lexer->buffer.length; ++index) token->identifier.data[index] = lexer->buffer.data[index];
 	token->identifier.length = lexer->buffer.length;
 	clear_buffer(lexer);
@@ -659,7 +664,6 @@ static lasm_token_type_e lex_numeric_literal_token(lasm_lexer_s* const lexer, la
 	}
 
 	uint64_t exponent_start = 0;
-	uint64_t suffix_start = 0;
 
 	do
 	{
@@ -677,13 +681,6 @@ static lasm_token_type_e lex_numeric_literal_token(lasm_lexer_s* const lexer, la
 
 		switch (c)
 		{
-			case 's':
-			case 'u':
-			{
-				state |= base_dec;
-				suffix_start = lexer->buffer.length - 1;
-			} break;
-
 			default:
 			{
 				goto end;
@@ -710,41 +707,10 @@ end:
 	typedef enum { kind_unknown = -1, kind_iconst, kind_unsigned, } kind_e;
 	kind_e kind = kind_unknown;
 
-	const struct
-	{
-		const char_t* suffix;
-		kind_e kind;
-		lasm_token_type_e type;
-	} literals[] =
-	{
-		{ .suffix = lasm_token_type_to_string(lasm_token_type_literal_u08), .kind = kind_unsigned, .type = lasm_token_type_literal_u08, },
-		{ .suffix = lasm_token_type_to_string(lasm_token_type_literal_u16), .kind = kind_unsigned, .type = lasm_token_type_literal_u16, },
-		{ .suffix = lasm_token_type_to_string(lasm_token_type_literal_u32), .kind = kind_unsigned, .type = lasm_token_type_literal_u32, },
-		{ .suffix = lasm_token_type_to_string(lasm_token_type_literal_u64), .kind = kind_unsigned, .type = lasm_token_type_literal_u64, },
-	};
-
-	if (suffix_start)
-	{
-		for (uint64_t index = 0; index < (sizeof(literals) / sizeof(literals[0])); ++index)
-		{
-			if (lasm_common_strcmp(literals[index].suffix, lexer->buffer.data + suffix_start) == 0)
-			{
-				token->type = literals[index].type;
-				kind = literals[index].kind;
-				break;
-			}
-		}
-
-		if (kind_unknown == kind)
-		{
-			log_lexer_error(token->location, "invalid suffix '%s'.", lexer->buffer.data + suffix_start);
-		}
-	}
-
 	if (kind_unknown == kind)
 	{
 		kind = kind_iconst;
-		token->type = lasm_token_type_literal_u64;
+		token->type = lasm_token_type_literal_uval;
 	}
 
 	uint64_t exponent = 0;
@@ -766,7 +732,7 @@ end:
 
 	if ((kind_iconst == kind) && (token->uval > (uint64_t)INT64_MAX))
 	{
-		token->type = lasm_token_type_literal_u64;
+		token->type = lasm_token_type_literal_uval;
 	}
 
 	clear_buffer(lexer);
@@ -998,8 +964,9 @@ static lasm_token_type_e lex_single_line_string_literal_token(lasm_lexer_s* cons
 
 	lasm_debug_assert(lexer->buffer.length > 0);
 	char_t* const data = (char_t* const)lasm_arena_alloc(lexer->arena, lexer->buffer.length);
-	lasm_common_memcpy(data, lexer->buffer.data, lexer->buffer.length);
+	lasm_debug_assert(data != NULL);
 
+	lasm_common_memcpy(data, lexer->buffer.data, lexer->buffer.length);
 	token->type = lasm_token_type_literal_str;
 	token->string.length = lexer->buffer.length;
 	token->string.data = data;

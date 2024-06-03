@@ -15,6 +15,11 @@
 
 #include "lasm/common.h"
 
+#define lasm_red    "\033[91m"
+#define lasm_yellow "\033[93m"
+#define lasm_green  "\033[92m"
+#define lasm_reset  "\033[0m"
+
 /**
  * @brief Log tagless level formattable messages.
  * 

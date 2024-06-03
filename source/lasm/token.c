@@ -52,10 +52,7 @@ const char_t* lasm_token_type_to_string(const lasm_token_type_e type)
 {
 	switch (type)
 	{
-		case lasm_token_type_literal_u08:  { return "u08";   } break;
-		case lasm_token_type_literal_u16:  { return "u16";   } break;
-		case lasm_token_type_literal_u32:  { return "u32";   } break;
-		case lasm_token_type_literal_u64:  { return "u64";   } break;
+		case lasm_token_type_literal_uval: { return "uval";  } break;
 		case lasm_token_type_literal_rune: { return "rune";  } break;
 		case lasm_token_type_literal_str:  { return "str";   } break;
 		case lasm_token_type_identifier:   { return "ident"; } break;
@@ -96,10 +93,7 @@ const char_t* lasm_token_to_string(const lasm_token_s* const token)
 
 	switch (token->type)
 	{
-		case lasm_token_type_literal_u08:
-		case lasm_token_type_literal_u16:
-		case lasm_token_type_literal_u32:
-		case lasm_token_type_literal_u64:
+		case lasm_token_type_literal_uval:
 		{
 			written += (uint64_t)snprintf(
 				token_string_buffer + written, token_string_buffer_capacity,

@@ -15,9 +15,7 @@
 #include "lasm/version.h"
 #include "lasm/debug.h"
 #include "lasm/logger.h"
-#include "lasm/arena.h"
-#include "lasm/token.h"
-#include "lasm/lexer.h"
+#include "lasm/parser.h"
 
 static const char_t* g_program = NULL;
 static const char_t* const g_usage_banner =
@@ -222,12 +220,11 @@ static void build(int32_t* const argc, const char_t*** const argv)
 	}
 
 	lasm_arena_s arena = lasm_arena_new();
-	lasm_lexer_s lexer = lasm_lexer_new(&arena, source);
-	lasm_token_s token = lasm_token_new(lasm_token_type_none, lexer.location);
-	while (!lasm_lexer_should_stop(lasm_lexer_lex(&lexer, &token)))
-	{
-		lasm_logger_log("%s", lasm_token_to_string(&token));
-	}
-	lasm_lexer_drop(&lexer);
+	lasm_parser_s parser = lasm_parser_new(&arena, source);
+
+	lasm_ast_label_s* const label = lasm_parser_parse_label(&parser);
+	(void)label;
+
+	lasm_parser_drop(&parser);
 	lasm_arena_drop(&arena);
 }

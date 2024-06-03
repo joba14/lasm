@@ -30,7 +30,7 @@ void lasm_logger_info(const char_t* const format, ...)
 {
 	lasm_debug_assert(format != NULL);
 	va_list args; va_start(args, format);
-	log_with_tag(stdout, "\033[92m" "info" "\033[0m", format, args);
+	log_with_tag(stdout, lasm_green "info" lasm_reset, format, args);
 	va_end(args);
 }
 
@@ -38,7 +38,7 @@ void lasm_logger_warn(const char_t* const format, ...)
 {
 	lasm_debug_assert(format != NULL);
 	va_list args; va_start(args, format);
-	log_with_tag(stderr, "\033[93m" "warn" "\033[0m", format, args);
+	log_with_tag(stderr, lasm_yellow "warn" lasm_reset, format, args);
 	va_end(args);
 }
 
@@ -46,7 +46,7 @@ void lasm_logger_error(const char_t* const format, ...)
 {
 	lasm_debug_assert(format != NULL);
 	va_list args; va_start(args, format);
-	log_with_tag(stderr, "\033[91m" "error" "\033[0m", format, args);
+	log_with_tag(stderr, lasm_red "error" lasm_reset, format, args);
 	va_end(args);
 }
 

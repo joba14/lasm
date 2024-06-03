@@ -1,0 +1,8 @@
+
+; []
+; [addr]
+; [addr=]
+[addr=10, align=auto, size=100, perm=rwx,]
+example:
+
+end
