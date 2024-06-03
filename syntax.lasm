@@ -152,9 +152,8 @@ start:
 end
 
 
-[addr(0x1000), align(2), perm(read, write)]
+[addr(0x1000), align(2), size(1), perm(read, write)]
 is-running:
-	res 1
 end
 
 
@@ -162,7 +161,6 @@ def STACK_BEGIN 0x2000
 def STACK_SIZE  0x200
 
 
-[addr(STACK_BEGIN), align(2), perm(read, write)]
+[addr(STACK_BEGIN), align(2), size(STACK_SIZE), perm(read, write)]
 stack:
-	res STACK_SIZE
 end
