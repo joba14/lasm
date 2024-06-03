@@ -353,14 +353,6 @@ static void parse_label_attr_perm(lasm_parser_s* const parser, lasm_ast_label_s*
 		);
 	}
 
-	if ((token.type != lasm_token_type_keyword_r  ) &&
-		(token.type != lasm_token_type_keyword_rw ) &&
-		(token.type != lasm_token_type_keyword_rx ) &&
-		(token.type != lasm_token_type_keyword_rwx))
-	{
-		
-	}
-
 	lasm_ast_perm_type_e perm_type = lasm_ast_perm_type_none;
 	(void)lasm_lexer_lex(&parser->lexer, &token);
 
