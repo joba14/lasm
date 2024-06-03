@@ -63,6 +63,35 @@ void* lasm_common_free(const void* pointer) __attribute__((warn_unused_result));
 void lasm_common_exit(const int32_t code);
 
 /**
+ * @brief Wrapper for c's stdlib memset function.
+ * 
+ * @param pointer pointer to a memory region to memset
+ * @param value   value to set throughout the memory region 
+ * @param length  length of the memory region
+ */
+void lasm_common_memset(void* const pointer, const uint8_t value, const uint64_t length);
+
+/**
+ * @brief Wrapper for c's stdlib memcpy function.
+ * 
+ * @param destination pointer to the destination memory region
+ * @param source      pointer to the source memory region
+ * @param length      length of the memory region to copy over
+ */
+void lasm_common_memcpy(void* const destination, const void* const source, const uint64_t length);
+
+/**
+ * @brief Wrapper for c's stdlib memcmp function.
+ * 
+ * @param left   left memory region
+ * @param right  right memory region
+ * @param length length of the memory regions
+ * 
+ * @return int32_t
+ */
+int32_t lasm_common_memcmp(const uint8_t* const left, const uint8_t* const right, const uint64_t length) __attribute__((warn_unused_result));
+
+/**
  * @brief Wrapper for c's stdlib strlen function.
  * 
  * @param cstring pointer to a c string to have the length calculated of
@@ -91,5 +120,15 @@ int32_t lasm_common_strcmp(const char_t* const left, const char_t* const right) 
  * @return int32_t
  */
 int32_t lasm_common_strncmp(const char_t* const left, const char_t* const right, const uint64_t length) __attribute__((warn_unused_result));
+
+/**
+ * @brief Wrapper for c's stdlib strchr function.
+ * 
+ * @param string string to search for symbol
+ * @param c      symbol to search for
+ * 
+ * @return char_t*
+ */
+char_t* lasm_common_strchr(const char_t* const string, const int32_t c) __attribute__((warn_unused_result));
 
 #endif

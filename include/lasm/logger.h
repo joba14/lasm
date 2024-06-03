@@ -21,12 +21,7 @@
  * @param format format of the log
  * @param ...    arguments of the log
  */
-void lasm_logger_log(const char_t* const format, ...)
-#ifndef _WIN32
-	__attribute__ ((format (printf, 1, 2)));
-#else
-	;
-#endif
+void lasm_logger_log(const char_t* const format, ...) __attribute__ ((format (printf, 1, 2)));
 
 /**
  * @brief Log info level formattable messages.
@@ -34,12 +29,7 @@ void lasm_logger_log(const char_t* const format, ...)
  * @param format format of the log
  * @param ...    arguments of the log
  */
-void lasm_logger_info(const char_t* const format, ...)
-#ifndef _WIN32
-	__attribute__ ((format (printf, 1, 2)));
-#else
-	;
-#endif
+void lasm_logger_info(const char_t* const format, ...) __attribute__ ((format (printf, 1, 2)));
 
 /**
  * @brief Log warn level formattable messages.
@@ -47,12 +37,7 @@ void lasm_logger_info(const char_t* const format, ...)
  * @param format format of the log
  * @param ...    arguments of the log
  */
-void lasm_logger_warn(const char_t* const format, ...)
-#ifndef _WIN32
-	__attribute__ ((format (printf, 1, 2)));
-#else
-	;
-#endif
+void lasm_logger_warn(const char_t* const format, ...) __attribute__ ((format (printf, 1, 2)));
 
 /**
  * @brief Log error level formattable messages.
@@ -60,11 +45,6 @@ void lasm_logger_warn(const char_t* const format, ...)
  * @param format format of the log
  * @param ...    arguments of the log
  */
-void lasm_logger_error(const char_t* const format, ...)
-#ifndef _WIN32
-	__attribute__ ((format (printf, 1, 2)));
-#else
-	;
-#endif
+void lasm_logger_error(const char_t* const format, ...) __attribute__ ((format (printf, 1, 2)));
 
 #endif

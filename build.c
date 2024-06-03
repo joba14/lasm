@@ -58,6 +58,9 @@ static void sources(build_command_s* const command)
 	build_vector_append(command, "./source/lasm/debug.c");
 	build_vector_append(command, "./source/lasm/logger.c");
 	build_vector_append(command, "./source/lasm/arena.c");
+	build_vector_append(command, "./source/lasm/utf8.c");
+	build_vector_append(command, "./source/lasm/token.c");
+	build_vector_append(command, "./source/lasm/lexer.c");
 	build_vector_append(command, "./source/main.c");
 }
 
@@ -104,7 +107,8 @@ build_target(release, "build the project in release build configuration.")
 build_target(run, "run the project in debug configuration.")
 {
 	build_command_s command = {0};
-	build_command_append(&command, "./build/debug/"PROJECT_NAME, "build", "./examples/syntax.lasm");
+	// build_command_append(&command, "./build/debug/"PROJECT_NAME, "build", "./examples/syntax.lasm");
+	build_command_append(&command, "./build/debug/"PROJECT_NAME, "build", "./examples/literals.asm");
 	const bool_t status = build_proc_run_sync(&command);
 	build_vector_drop(&command);
 	return status;

@@ -19,9 +19,5 @@
 		"black",
 		"black",
 		"white"
-	],
-	"files.associations": {
-		"*.prm": "rust",
-		"common.h": "c"
-	}
+	]
 }
