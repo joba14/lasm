@@ -110,9 +110,18 @@ build_target(run, "run the project in debug configuration.")
 	return status;
 }
 
+build_target(docs, "generate the docs for the project.")
+{
+	build_command_s command = {0};
+	build_command_append(&command, "doxygen", "./doxyfile.sh");
+	const bool_t status = build_proc_run_sync(&command);
+	build_vector_drop(&command);
+	return status;
+}
+
 build_target(all, "run all targets one after the other.")
 {
-	return clean() && prep() && debug() && release() && run();
+	return clean() && prep() && debug() && release();
 }
 
 build_targets(
@@ -121,5 +130,6 @@ build_targets(
 	bind_target(debug  ),
 	bind_target(release),
 	bind_target(run    ),
+	bind_target(docs   ),
 	bind_target(all    ),
 );

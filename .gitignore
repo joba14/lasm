@@ -31,11 +31,14 @@
 
 # Executables
 *.exe
+*.bin
 *.out
 *.app
 *.i*86
 *.x86_64
 *.hex
+*.ihex
+*.srec
 
 # Debug files
 *.dSYM/
@@ -61,6 +64,8 @@ dkms.conf
 # Custom, project-related ignores
 build
 build.bin
+build.bin.old
+docs
 
 # Visual Studio Code Counter
 .VSCodeCounter
