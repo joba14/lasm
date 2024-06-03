@@ -46,7 +46,7 @@ def CONSTANT3 0x00
 ; body.
 ; 
 ; Below are examples:
-[addr(0x00), align(2), size(auto), perm(read, exec)]
+[addr(0x00), align(2), size(auto), perm(rx)]
 my_proc:
 	nop
 end
@@ -57,7 +57,7 @@ end
 ; Note, that the size attribute here gets inferred by an assembler. It computes
 ; the size, required by this label, and sets the size attribute accordingly.
 
-[addr(auto), align(2), size(2), perm(read, write)]
+[addr(auto), align(2), size(2), perm(rw)]
 my_var:
 end
 ; Note, that this label is placed where the address cursor points (in this case
@@ -74,7 +74,7 @@ end
 ; uninitialized.
 
 def STACK_ADDRESS 0x1000 def STACK_SIZE 0x100
-[addr(STACK_ADDRESS), align(2), size(STACK_SIZE), perm(read, write)]
+[addr(STACK_ADDRESS), align(2), size(STACK_SIZE), perm(rw)]
 stack:
 end
 ; Note, that this label is placed where the address cursor points (in this case
@@ -88,7 +88,7 @@ end
 ; be thought of and used a procedures and variables (constants or not). because
 ; every definition is a label, procedures and variables can be defined as shown
 ; below:
-[addr(0x0F), align(2), size(auto), perm(read, exec)]
+[addr(0x0F), align(2), size(auto), perm(rx)]
 ; This is a procedure that calculates some things.
 calc:
 	nop
@@ -96,7 +96,7 @@ calc:
 	ret
 end
 
-[entry, addr(0x100), align(2), size(auto), perm(read, exec)]
+[entry, addr(0x100), align(2), size(auto), perm(rx)]
 ; This is a procedure label and an entry point of the program.
 start:
 	movw r0, 0
@@ -105,7 +105,7 @@ start:
 	ret
 end
 
-[addr(0x100), align(2), size(auto), perm(read, write)]
+[addr(0x100), align(2), size(auto), perm(rw)]
 ; This is a variable label for storing the state of the program: is it running.
 running:
 	0x01
@@ -115,28 +115,28 @@ end
 
 ; SANDBOX ---------------------------------------------------------------------
 ; Below this comment block is a sandbox code that is highly experimental:
-[addr(0x00), align(2), perm(read, exec)]
+[addr(0x00), align(2), perm(rx)]
 vecs:
 	reset
 	led-on
 end
 
 
-[addr(auto), align(2), perm(read, exec)]
+[addr(auto), align(2), perm(rx)]
 reset:
 	; ... 
 	ret
 end
 
 
-[addr(auto), align(2), perm(read, exec)]
+[addr(auto), align(2), perm(rx)]
 led-on:
 	; ... 
 	ret
 end
 
 
-[entry, addr(auto), align(2), perm(read, exec)]
+[entry, addr(auto), align(2), perm(rx)]
 start:
 	movw r0, 1
 	movw r1, 1
@@ -152,7 +152,7 @@ start:
 end
 
 
-[addr(0x1000), align(2), size(1), perm(read, write)]
+[addr(0x1000), align(2), size(1), perm(rw)]
 is-running:
 end
 
@@ -161,6 +161,6 @@ def STACK_BEGIN 0x2000
 def STACK_SIZE  0x200
 
 
-[addr(STACK_BEGIN), align(2), size(STACK_SIZE), perm(read, write)]
+[addr(STACK_BEGIN), align(2), size(STACK_SIZE), perm(rw)]
 stack:
 end
