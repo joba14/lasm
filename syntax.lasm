@@ -1,0 +1,168 @@
+
+; COMMENTS --------------------------------------------------------------------
+; This assembly language supports 3 types of comments:
+; 1. ;
+; 2. //
+; 3. /* */, which can be nested
+
+
+
+; LITERALS --------------------------------------------------------------------
+; This assembly language supports the following literals:
+; 1. Integer values (binary, octal, hex, or decimal notation)
+; 2. Bytes (string literals or comma separated integers)
+
+
+
+; PREPROCESSOR ----------------------------------------------------------------
+; This assembly language supports preprocessor macros and definitions for bytes
+; and numeric literals:
+def CONSTANT1 1
+def CONSTANT2 1234567890
+def CONSTANT3 0x00
+
+
+
+; LABELS ----------------------------------------------------------------------
+; Every definition in this asssembly is a label. Labels must have explictly set
+; attributes, such as address, alignment, size, and permissions. After the list
+; of the attributes, the labels should have their name, followed by a ':', that
+; indicates that the body for the label begins. After the label's body an 'end'
+; closing keyword is required to indicate the end of a label.
+; 
+; Note, that a special optional attribute exists - entry. Only one label should
+; have this attribute as it indicates the entry point of the program (where the
+; PC register will be set to at he very start).
+; 
+; Note, that the address, alignment, and size attributes can be inferred by the
+; assembler. For each of the attributes the inferring rules are different. When
+; address is inferred, it's set to be right after the previously defined label.
+; When alignment is inferred, it is similarly set to the last used alignment in
+; the previous label. And when the size is inferred, it is set to the size of a
+; label's body it describes.
+; 
+; Note, that the 'end' keyword does not mean any instruction. It isn't a return
+; instruction. It's solely used by the assembler to find the end of the label's
+; body.
+; 
+; Below are examples:
+[addr(0x00), align(2), size(auto), perm(read, exec)]
+my_proc:
+	nop
+end
+; Note, that this label is placed in the address 0x00 and it's body contains of
+; a single byte (nop). This means that the address cursor is moved to 0x01 just
+; after this label (meaning here).
+; 
+; Note, that the size attribute here gets inferred by an assembler. It computes
+; the size, required by this label, and sets the size attribute accordingly.
+
+[addr(auto), align(2), size(2), perm(read, write)]
+my_var:
+end
+; Note, that this label is placed where the address cursor points (in this case
+; 0x01). Also this label does not have any defined bytes in it's body as it has
+; only reserved 2 bytes of space without initializing this data to anything.
+; 
+; Note, that for this label, the size attribute's set explicitly to indicate it
+; reserved 2 bytes. And with it's body left empty, those 2 bytes are left as an
+; uninitialized values.
+; 
+; Note, that if there were instructions, or bytes literals added to the label's
+; body, it must not exceed the specified size. If only part of the label's body
+; size is set to bytes literals or instruction, the left out space will be left
+; uninitialized.
+
+def STACK_ADDRESS 0x1000 def STACK_SIZE 0x100
+[addr(STACK_ADDRESS), align(2), size(STACK_SIZE), perm(read, write)]
+stack:
+end
+; Note, that this label is placed where the address cursor points (in this case
+; 0x01). Also this label does not have any defined bytes in it's body as it has
+; only reserved 2 bytes of space without initializing this data to anything.
+
+
+
+; HIGHER LEVEL CONSTRUCTS -----------------------------------------------------
+; To feel more like a programming language or a modern assembly, the labels can
+; be thought of and used a procedures and variables (constants or not). because
+; every definition is a label, procedures and variables can be defined as shown
+; below:
+[addr(0x0F), align(2), size(auto), perm(read, exec)]
+; This is a procedure that calculates some things.
+calc:
+	nop
+	nop
+	ret
+end
+
+[entry, addr(0x100), align(2), size(auto), perm(read, exec)]
+; This is a procedure label and an entry point of the program.
+start:
+	movw r0, 0
+	movw r1, 0
+	call calc
+	ret
+end
+
+[addr(0x100), align(2), size(auto), perm(read, write)]
+; This is a variable label for storing the state of the program: is it running.
+running:
+	0x01
+end
+
+
+
+; SANDBOX ---------------------------------------------------------------------
+; Below this comment block is a sandbox code that is highly experimental:
+[addr(0x00), align(2), perm(read, exec)]
+vecs:
+	reset
+	led-on
+end
+
+
+[addr(auto), align(2), perm(read, exec)]
+reset:
+	; ... 
+	ret
+end
+
+
+[addr(auto), align(2), perm(read, exec)]
+led-on:
+	; ... 
+	ret
+end
+
+
+[entry, addr(auto), align(2), perm(read, exec)]
+start:
+	movw r0, 1
+	movw r1, 1
+	stw is-running, 0x01  ; store value True into the variable is-running.
+	.loop:
+		cmp is-running, 0x01  ; if is-running is True.
+		bne .loop-end         ; jump to the end of the program if is-running is False.
+		; do the application logic stuff...
+		br .loop  ; jump back to the loop condition to check if is-running is still True.
+	.loop-end:    ; end of the program.
+	; ... 
+	ret
+end
+
+
+[addr(0x1000), align(2), perm(read, write)]
+is-running:
+	res 1
+end
+
+
+def STACK_BEGIN 0x2000
+def STACK_SIZE  0x200
+
+
+[addr(STACK_BEGIN), align(2), perm(read, write)]
+stack:
+	res STACK_SIZE
+end
