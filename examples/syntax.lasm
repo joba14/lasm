@@ -21,10 +21,6 @@
 ; indicates that the body for the label begins. After the label's body an 'end'
 ; closing keyword is required to indicate the end of a label.
 ; 
-; Note, that a special optional attribute exists - entry. Only one label should
-; have this attribute as it indicates the entry point of the program (where the
-; PC register will be set to at he very start).
-; 
 ; Note, that the address, alignment, and size attributes can be inferred by the
 ; assembler. For each of the attributes the inferring rules are different. When
 ; address is inferred, it's set to be right after the previously defined label.
@@ -89,8 +85,8 @@ calc:
 	ret
 end
 
-[entry, addr=0x100, align=2, size=auto, perm=rx]
-; This is a procedure label and an entry point of the program.
+[addr=0x100, align=2, size=auto, perm=rx]
+; This is a procedure label.
 start:
 	movw r0, 0
 	movw r1, 0
@@ -129,7 +125,7 @@ led-on:
 end
 
 
-[entry, addr=auto, align=2, size=auto, perm=rx]
+[addr=auto, align=2, size=auto, perm=rx]
 start:
 	movw r0, 1
 	movw r1, 1

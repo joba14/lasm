@@ -29,6 +29,8 @@ static const char_t* const g_usage_banner =
 	"        required:\n"
 	"            <source.lasm>               source file to build.\n"
 	"        optional:\n"
+	"            -e, --entry <name>          set the entry name symbol for the executable. defaults to the\n"
+	"                                        name \'main\'.\n"
 	"            -o, --output <path>         set the output path for the executable. defaults to the name of\n"
 	"                                        provided source file with extension removed if not provided.\n"
 	"\n"
@@ -154,6 +156,7 @@ static void build(int32_t* const argc, const char_t*** const argv)
 	lasm_debug_assert(argc != NULL);
 	lasm_debug_assert(argv != NULL);
 
+	const char_t* entry  = NULL;
 	const char_t* output = NULL;
 	const char_t* source = NULL;
 
@@ -162,7 +165,20 @@ static void build(int32_t* const argc, const char_t*** const argv)
 		const char_t* const option = shift_args(argc, argv);
 		if (NULL == option) { break; }
 
-		if (match_option(option, "--output", "-o"))
+		if (match_option(option, "--entry", "-e"))
+		{
+			if (entry != NULL)
+			{
+				lasm_logger_error("multiple --entry, -e arguments found in the command line arguments in 'build' command.");
+				print_usage();
+				lasm_common_exit(1);
+			}
+
+			const char_t* const entry_as_string = get_option_argument(option, argc, argv);
+			lasm_debug_assert(entry_as_string != NULL);
+			entry = entry_as_string;
+		}
+		else if (match_option(option, "--output", "-o"))
 		{
 			if (output != NULL)
 			{
@@ -186,6 +202,11 @@ static void build(int32_t* const argc, const char_t*** const argv)
 
 			source = option;
 		}
+	}
+
+	if (NULL == entry)
+	{
+		entry = "main";
 	}
 
 	if (NULL == output)

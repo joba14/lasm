@@ -107,8 +107,7 @@ build_target(release, "build the project in release build configuration.")
 build_target(run, "run the project in debug configuration.")
 {
 	build_command_s command = {0};
-	// build_command_append(&command, "./build/debug/"PROJECT_NAME, "build", "./examples/syntax.lasm");
-	build_command_append(&command, "./build/debug/"PROJECT_NAME, "build", "./examples/literals.asm");
+	build_command_append(&command, "./build/debug/"PROJECT_NAME, "build", "./examples/syntax.lasm");
 	const bool_t status = build_proc_run_sync(&command);
 	build_vector_drop(&command);
 	return status;
