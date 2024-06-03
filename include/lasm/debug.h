@@ -46,7 +46,7 @@ void _lasm_debug_assert_impl(const bool_t expression, const char_t* const expres
  * @note It abstracts the @ref _lasm_debug_assert_impl function and passes line,
  * file, and stringified expression to the implementation function.
  */
-#	define raven_debug_assert(_expression) ((void)(_expression))
+#	define lasm_debug_assert(_expression) ((void)(_expression))
 #endif
 
 #endif

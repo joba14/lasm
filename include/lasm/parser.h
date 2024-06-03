@@ -69,6 +69,26 @@ typedef struct
 	} as;
 } lasm_ast_attr_s;
 
+typedef enum
+{
+	lasm_ast_inst_type_nop,
+} lasm_ast_inst_type_e;
+
+typedef struct
+{
+	void* _dummy;
+} lasm_ast_inst_nop_s;
+
+typedef struct
+{
+	lasm_ast_inst_type_e type;
+
+	union
+	{
+		lasm_ast_inst_nop_s nop;
+	} as;
+} lasm_ast_inst_s;
+
 typedef struct
 {
 	lasm_ast_attr_s attrs[lasm_ast_attr_types_count];

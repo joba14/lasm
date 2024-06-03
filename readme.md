@@ -25,8 +25,7 @@
 		- [Building the Project](#building-the-project)
 		- [Generating the Documentation](#generating-the-documentation)
 	- [Usage](#usage)
-		- [Example Project](#example-project)
-		- [Running the Compiler](#running-the-compiler)
+		- [Example Projects](#example-projects)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -123,33 +122,29 @@ Once you have the doxygen installed, follow these steps to generate the document
 
 [(to the top)](#lasm)
 
+
 ### Usage
 todo!
 
-#### Example Project
-todo!
-
-#### Running the Compiler
+#### Example Projects
 todo!
 
 [(to the top)](#lasm)
 
 
 ## Contributing
-At this time, I am not actively seeking contributions to the Raven project. I appreciate your interest and enthusiasm for contributing to the project.
-
+At this time, I am not actively seeking contributions to the Lasm project. I appreciate your interest and enthusiasm for contributing to the project.
 The reason for not actively seeking contributions is that I currently do not have well-defined ground rules and guidelines in place for contributors. I want to ensure that the contribution process is clear, fair, and productive for everyone involved.
 
 However, I am always open to feedback, bug reports, and feature requests. If you encounter issues with the project or have ideas for improvements, please feel free to report in this project's repo issues page.
-
 I value your interest in the project, and I may consider establishing contribution guidelines in the future. Until then, thank you for your understanding and support.
 
 [(to the top)](#lasm)
 
 
 ## License
-The Raven project is released under the **Raven GPLv1** license. Users and contributors are required to review and comply with the license terms specified in the [license.md file](./license.md). The license outlines the permitted usage, distribution, and intellectual property rights associated with the Raven project.
+The Lasm project is released under the **Lasm GPLv1** license. Users and contributors are required to review and comply with the license terms specified in the [license.md file](./license.md). The license outlines the permitted usage, distribution, and intellectual property rights associated with the Lasm project.
 
-Please refer to the [license.md file](./license.md) for more details. By using, modifying, or distributing the Raven project, you agree to be bound by the terms and conditions of the license.
+Please refer to the [license.md file](./license.md) for more details. By using, modifying, or distributing the Lasm project, you agree to be bound by the terms and conditions of the license.
 
 [(to the top)](#lasm)
