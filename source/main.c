@@ -222,8 +222,11 @@ static void build(int32_t* const argc, const char_t*** const argv)
 	lasm_arena_s arena = lasm_arena_new();
 	lasm_parser_s parser = lasm_parser_new(&arena, source);
 
-	lasm_ast_label_s* const label = lasm_parser_parse_label(&parser);
-	(void)label;
+	lasm_ast_label_s* label = NULL;
+	while ((label = lasm_parser_parse_label(&parser)) != NULL)
+	{
+		lasm_logger_info("label.name=%s", label->name);
+	}
 
 	lasm_parser_drop(&parser);
 	lasm_arena_drop(&arena);

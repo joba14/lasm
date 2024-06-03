@@ -23,7 +23,7 @@
 		- [Cloning the Project](#cloning-the-project)
 		- [Dependencies](#dependencies)
 		- [Building the Project](#building-the-project)
-		- [Generating the Documentation](#generating-the-documentation)
+		- [Generating the Docs](#generating-the-docs)
 	- [Usage](#usage)
 		- [Example Projects](#example-projects)
 - [Contributing](#contributing)
@@ -113,7 +113,7 @@ Once you have the dependencies installed, follow these steps to build the projec
 
 [(to the top)](#lasm)
 
-#### Generating the Documentation
+#### Generating the Docs
 Once you have the doxygen installed, follow these steps to generate the documentation:
 ```sh
 > cd <root-of-the-repo>

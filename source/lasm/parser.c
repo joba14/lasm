@@ -55,12 +55,15 @@ lasm_ast_label_s* lasm_parser_parse_label(lasm_parser_s* const parser)
 {
 	lasm_debug_assert(parser != NULL);
 
-	lasm_ast_label_s* const label = lasm_arena_alloc(parser->arena, sizeof(*label));
-	lasm_debug_assert(label != NULL);
-
 	lasm_token_s token = lasm_token_new(lasm_token_type_none, parser->lexer.location);
+	(void)lasm_lexer_lex(&parser->lexer, &token);
 
-	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_left_bracket)
+	if ((lasm_token_type_eof == token.type) || (lasm_token_type_none == token.type))
+	{
+		return NULL;
+	}
+
+	if (token.type != lasm_token_type_symbolic_left_bracket)
 	{
 		log_parser_error(token.location,
 			"expected a symbolic token '[', but found '%s' token. all global definitions must be labels which start\n"
@@ -74,10 +77,65 @@ lasm_ast_label_s* lasm_parser_parse_label(lasm_parser_s* const parser)
 		);
 	}
 
+	lasm_ast_label_s* const label = lasm_arena_alloc(parser->arena, sizeof(*label));
+	lasm_debug_assert(label != NULL);
+
 	parse_label_attr_addr(parser, label);
 	parse_label_attr_align(parser, label);
 	parse_label_attr_size(parser, label);
 	parse_label_attr_perm(parser, label);
+
+	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_right_bracket)
+	{
+		log_parser_error(token.location,
+			"expected a symbolic token ']' after the attributes list, but found '%s' token. an attributes list must be close\n"
+			"with ']' symbolic token. follow the example below:\n"
+			"    " lasm_red "                                             ~~~~~~~~~~~v" lasm_reset "\n"
+			"    [addr=<value>, align=<value>, size=<value>, perm=<value>" lasm_red "]" lasm_reset "\n"
+			"    "          "example:\n"
+			"    "          "    ; ... \n"
+			"    "          "end\n",
+			lasm_token_type_to_string(token.type)
+		);
+	}
+
+	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_identifier)
+	{
+		log_parser_error(token.location,
+			"expected an identifier token after attributes list for the label, but found '%s' token. a label name must follow\n"
+			"the attributes list. follow the example below:\n"
+			lasm_red " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
+			lasm_red "|  " lasm_reset " [addr=<value>, align=<value>, size=<value>, perm=<value>]\n"
+			lasm_red " ~> example" lasm_reset ":\n"
+			"    "          "    ; ... \n"
+			"    "          "end\n",
+			lasm_token_type_to_string(token.type)
+		);
+	}
+
+	label->name = token.as.identifier.data;
+
+	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_colon)
+	{
+		log_parser_error(token.location,
+			"expected a ':' symbolic token after the label's identifier token, but found '%s' token. a ':' symbolic token must\n"
+			"follow the label's identifier/name token. follow the example below:\n"
+			"                                                                  " lasm_red "|" lasm_reset "\n"
+			"    [addr=<value>, align=<value>, size=<value>, perm=<value>]     " lasm_red "|" lasm_reset "\n"
+			"    "          "example" lasm_red ": <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
+			"    "          "    ; ... \n"
+			"    "          "end\n",
+			lasm_token_type_to_string(token.type)
+		);
+	}
+
+	// todo: remove this temporary body skipper:
+	while (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_keyword_end)
+	{
+		continue;
+	}
+	// todo: parse the body (instructions) until
+
 	return label;
 }
 
