@@ -14,15 +14,6 @@
 
 
 
-; PREPROCESSOR ----------------------------------------------------------------
-; This assembly language supports preprocessor macros and definitions for bytes
-; and numeric literals:
-def CONSTANT1 1
-def CONSTANT2 1234567890
-def CONSTANT3 0x00
-
-
-
 ; LABELS ----------------------------------------------------------------------
 ; Every definition in this asssembly is a label. Labels must have explictly set
 ; attributes, such as address, alignment, size, and permissions. After the list
@@ -73,8 +64,8 @@ end
 ; size is set to bytes literals or instruction, the left out space will be left
 ; uninitialized.
 
-def STACK_ADDRESS 0x1000
-def STACK_SIZE    0x100
+#define STACK_ADDRESS 0x1000
+#define STACK_SIZE    0x100
 
 [addr=STACK_ADDRESS, align=2, size=STACK_SIZE, perm=rw]
 stack:
@@ -159,8 +150,8 @@ is-running:
 end
 
 
-def STACK_BEGIN 0x2000
-def STACK_SIZE  0x200
+#define STACK_BEGIN 0x2000
+#define STACK_SIZE  0x200
 
 
 [addr=STACK_BEGIN, align=2, size=STACK_SIZE, perm=rw]
