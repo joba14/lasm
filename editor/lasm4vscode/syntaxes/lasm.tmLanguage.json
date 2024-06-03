@@ -1,0 +1,99 @@
+
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "lasm",
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#labels"
+		},
+		{
+			"include": "#numerics"
+		},
+		{
+			"include": "#strings"
+		}
+	],
+	"repository": {
+		"comments": {
+			"patterns": [
+				{
+					"begin": "//",
+					"end": "$",
+					"name": "comment.line.double-slash.lasm"
+				},
+				{
+					"begin": ";",
+					"end": "$",
+					"name": "comment.line.double-slash.lasm"
+				},
+				{
+					"begin": "/\\*",
+					"end": "\\*/",
+					"name": "comment.block.lasm"
+				}
+			]
+		},
+		"keywords": {
+			"patterns": [
+				{
+					"name": "entity.name.tag.lasm",
+					"match": "\\b(entry|addr|align|size|perm|r|rw|rx|rwx|auto|end)\\b"
+				}
+			]
+		},
+		"labels": {
+			"patterns": [
+				{
+					"name": "entity.name.function.lasm",
+					"match": "\\b([\\w_.-]+:)|([\\w_.-]+\\s+:)\\b"
+				}
+			]
+		},
+		"numerics": {
+			"patterns": [
+				{
+					"name": "constant.numeric.integer.hex.lasm",
+					"match": "\\b0x[0-9A-Fa-f]+\\b"
+				},
+				{
+					"name": "constant.numeric.integer.binary.lasm",
+					"match": "\\b0b[01]+\\b"
+				},
+				{
+					"name": "constant.numeric.integer.octal.lasm",
+					"match": "\\b0o[0-7]+\\b"
+				},
+				{
+					"name": "constant.numeric.integer.decimal.lasm",
+					"match": "\\b[0-9]+\\b"
+				},
+				{
+					"name": "constant.numeric.float.lasm",
+					"match": "\\b[0-9]+\\.[0-9]+\\b"
+				}
+			]
+		},
+		"strings": {
+			"patterns": [
+				{
+					"name": "string.quoted.double.lasm",
+					"begin": "\"",
+					"end": "\"",
+					"patterns": [
+						{
+							"name": "constant.character.escape.lasm",
+							"match": "\\\\."
+						}
+					]
+				}
+			]
+		}
+	},
+	"scopeName": "source.lasm"
+}

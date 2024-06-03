@@ -1,0 +1,26 @@
+
+{
+	"name": "lasm-syntax-highlighting",
+	"displayName": "lasm-syntax-highlighting",
+	"description": "just a simple syntax highlighter for lasm",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.71.0"
+	},
+	"categories": [
+		"Programming Languages"
+	],
+	"contributes": {
+		"languages": [{
+			"id": "lasm",
+			"aliases": ["lasm"],
+			"extensions": ["lasm", "asm"],
+			"configuration": "./language-configuration.json"
+		}],
+		"grammars": [{
+			"language": "lasm",
+			"scopeName": "source.lasm",
+			"path": "./syntaxes/lasm.tmLanguage.json"
+		}]
+	}
+}
