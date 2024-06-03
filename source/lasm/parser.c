@@ -150,7 +150,7 @@ static void parse_label_attr_addr(lasm_parser_s* const parser, lasm_ast_label_s*
 		.inferred = (lasm_token_type_keyword_auto == token.type),
 		.as.addr  = (const lasm_ast_attr_addr_s)
 		{
-			.value = (lasm_token_type_keyword_auto == token.type ? 0 : token.uval),
+			.value = (lasm_token_type_keyword_auto == token.type ? 0 : token.as.uval),
 		},
 	};
 
@@ -215,11 +215,11 @@ static void parse_label_attr_align(lasm_parser_s* const parser, lasm_ast_label_s
 
 	if (lasm_token_type_literal_uval == token.type)
 	{
-		if (token.uval > 8)
+		if (token.as.uval > 8)
 		{
 			log_parser_error(token.location,
 				"align attribute value cannot exceed 8, but found value %lu specified for align attribute.",
-				token.uval
+				token.as.uval
 			);
 		}
 	}
@@ -230,7 +230,7 @@ static void parse_label_attr_align(lasm_parser_s* const parser, lasm_ast_label_s
 		.inferred = (lasm_token_type_keyword_auto == token.type),
 		.as.align = (const lasm_ast_attr_align_s)
 		{
-			.value = (lasm_token_type_keyword_auto == token.type ? 0 : token.uval),
+			.value = (lasm_token_type_keyword_auto == token.type ? 0 : token.as.uval),
 		},
 	};
 
@@ -299,7 +299,7 @@ static void parse_label_attr_size(lasm_parser_s* const parser, lasm_ast_label_s*
 		.inferred = (lasm_token_type_keyword_auto == token.type),
 		.as.size  = (const lasm_ast_attr_size_s)
 		{
-			.value = (lasm_token_type_keyword_auto == token.type ? 0 : token.uval),
+			.value = (lasm_token_type_keyword_auto == token.type ? 0 : token.as.uval),
 		},
 	};
 

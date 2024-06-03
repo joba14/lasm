@@ -97,14 +97,14 @@ const char_t* lasm_token_to_string(const lasm_token_s* const token)
 		{
 			written += (uint64_t)snprintf(
 				token_string_buffer + written, token_string_buffer_capacity,
-				", data='%lu'", token->uval
+				", data='%lu'", token->as.uval
 			);
 		} break;
 
 		case lasm_token_type_literal_rune:
 		{
 			char_t encoded[lasm_utf8_max_size];
-			const uint8_t size = lasm_utf8_encode(encoded, token->rune);
+			const uint8_t size = lasm_utf8_encode(encoded, token->as.rune);
 
 			written += (uint64_t)snprintf(
 				token_string_buffer + written, token_string_buffer_capacity,
@@ -116,17 +116,17 @@ const char_t* lasm_token_to_string(const lasm_token_s* const token)
 		{
 			written += (uint64_t)snprintf(
 				token_string_buffer + written, token_string_buffer_capacity,
-				", data='%.*s'", (int32_t)token->string.length, token->string.data
+				", data='%.*s'", (int32_t)token->as.string.length, token->as.string.data
 			);
 		} break;
 
 		case lasm_token_type_identifier:
 		{
-			lasm_debug_assert(token->identifier.data != NULL);
-			lasm_debug_assert(token->identifier.length > 0);
+			lasm_debug_assert(token->as.identifier.data != NULL);
+			lasm_debug_assert(token->as.identifier.length > 0);
 			written += (uint64_t)snprintf(
 				token_string_buffer + written, token_string_buffer_capacity,
-				", data='%.*s'", (int32_t)token->identifier.length, token->identifier.data
+				", data='%.*s'", (int32_t)token->as.identifier.length, token->as.identifier.data
 			);
 		} break;
 

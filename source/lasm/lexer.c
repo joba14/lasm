@@ -597,11 +597,11 @@ static lasm_token_type_e lex_keyword_or_identifier(lasm_lexer_s* const lexer, la
 	}
 
 	token->type = lasm_token_type_identifier;
-	token->identifier.data = lasm_arena_alloc(lexer->arena, lexer->buffer.length);
-	lasm_debug_assert(token->identifier.data != NULL);
+	token->as.identifier.data = lasm_arena_alloc(lexer->arena, lexer->buffer.length);
+	lasm_debug_assert(token->as.identifier.data != NULL);
 
-	for (uint64_t index = 0; index < lexer->buffer.length; ++index) token->identifier.data[index] = lexer->buffer.data[index];
-	token->identifier.length = lexer->buffer.length;
+	for (uint64_t index = 0; index < lexer->buffer.length; ++index) token->as.identifier.data[index] = lexer->buffer.data[index];
+	token->as.identifier.length = lexer->buffer.length;
 	clear_buffer(lexer);
 	return token->type;
 }
@@ -722,15 +722,15 @@ end:
 	}
 
 	const uint8_t prefix_offset = ((10 == base) ? 0 : 2);
-	token->uval = strtoumax(lexer->buffer.data + prefix_offset, NULL, base);
-	token->uval = compute_numeric_literal_exponent(token->uval, exponent, false);
+	token->as.uval = strtoumax(lexer->buffer.data + prefix_offset, NULL, base);
+	token->as.uval = compute_numeric_literal_exponent(token->as.uval, exponent, false);
 
 	if (errno == ERANGE)
 	{
 		log_lexer_error(token->location, "integer literal overflow.");
 	}
 
-	if ((kind_iconst == kind) && (token->uval > (uint64_t)INT64_MAX))
+	if ((kind_iconst == kind) && (token->as.uval > (uint64_t)INT64_MAX))
 	{
 		token->type = lasm_token_type_literal_uval;
 	}
@@ -881,9 +881,9 @@ static lasm_token_type_e lex_rune_literal_token(lasm_lexer_s* const lexer, lasm_
 			(void)decode_single_rune(lexer, buffer);
 
 			const char_t* string = buffer;
-			token->rune = lasm_utf8_decode(&string);
+			token->as.rune = lasm_utf8_decode(&string);
 
-			if (lasm_utf8_invalid == token->rune)
+			if (lasm_utf8_invalid == token->as.rune)
 			{
 				log_lexer_error(token->location, "invalid utf-8 sequence in rune literal");
 			}
@@ -905,7 +905,7 @@ static lasm_token_type_e lex_rune_literal_token(lasm_lexer_s* const lexer, lasm_
 
 		default:
 		{
-			token->rune = c;
+			token->as.rune = c;
 		} break;
 	}
 
@@ -968,8 +968,8 @@ static lasm_token_type_e lex_single_line_string_literal_token(lasm_lexer_s* cons
 
 	lasm_common_memcpy(data, lexer->buffer.data, lexer->buffer.length);
 	token->type = lasm_token_type_literal_str;
-	token->string.length = lexer->buffer.length;
-	token->string.data = data;
+	token->as.string.length = lexer->buffer.length;
+	token->as.string.data = data;
 
 	clear_buffer(lexer);
 	return token->type;

@@ -87,7 +87,7 @@ typedef struct
 			char_t*  data;
 			uint64_t length;
 		} identifier;
-	};  // todo: 'as'!
+	} as;
 } lasm_token_s;
 
 /**
