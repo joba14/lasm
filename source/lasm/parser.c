@@ -23,11 +23,12 @@
 		lasm_common_exit(1);                                                   \
 	} while (0)
 
-static void parse_label_attr(lasm_parser_s* const parser, lasm_ast_label_s* const label, const lasm_ast_attr_type_e attr_type);
-
 static void parse_label_attr_addr(lasm_parser_s* const parser, lasm_ast_label_s* const label);
+
 static void parse_label_attr_align(lasm_parser_s* const parser, lasm_ast_label_s* const label);
+
 static void parse_label_attr_size(lasm_parser_s* const parser, lasm_ast_label_s* const label);
+
 static void parse_label_attr_perm(lasm_parser_s* const parser, lasm_ast_label_s* const label);
 
 lasm_parser_s lasm_parser_new(lasm_arena_s* const arena, const char_t* const file_path)
@@ -73,31 +74,11 @@ lasm_ast_label_s* lasm_parser_parse_label(lasm_parser_s* const parser)
 		);
 	}
 
-	parse_label_attr(parser, label, lasm_ast_attr_type_addr);
-	parse_label_attr(parser, label, lasm_ast_attr_type_align);
-	parse_label_attr(parser, label, lasm_ast_attr_type_size);
-	parse_label_attr(parser, label, lasm_ast_attr_type_perm);
+	parse_label_attr_addr(parser, label);
+	parse_label_attr_align(parser, label);
+	parse_label_attr_size(parser, label);
+	parse_label_attr_perm(parser, label);
 	return label;
-}
-
-static void parse_label_attr(lasm_parser_s* const parser, lasm_ast_label_s* const label, const lasm_ast_attr_type_e attr_type)
-{
-	lasm_debug_assert(parser != NULL);
-	lasm_debug_assert(label != NULL);
-
-	switch (attr_type)
-	{
-		case lasm_ast_attr_type_addr:  { parse_label_attr_addr(parser, label);  } break;
-		case lasm_ast_attr_type_align: { parse_label_attr_align(parser, label); } break;
-		case lasm_ast_attr_type_size:  { parse_label_attr_size(parser, label);  } break;
-		case lasm_ast_attr_type_perm:  { parse_label_attr_perm(parser, label);  } break;
-
-		default:
-		{
-			// note: should never ever happen as the valid attributes are all handled in the cases.
-			lasm_debug_assert(0);  // note: sanity check for developers.
-		} break;
-	}
 }
 
 static void parse_label_attr_addr(lasm_parser_s* const parser, lasm_ast_label_s* const label)
