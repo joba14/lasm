@@ -130,10 +130,9 @@ lasm_ast_label_s* lasm_parser_parse_label(lasm_parser_s* const parser)
 	}
 
 	// todo: remove this temporary body skipper:
-	(void)lasm_lexer_lex(&parser->lexer, &token);
-	while  ((token.type != lasm_token_type_keyword_end) &&
-			(token.type != lasm_token_type_eof))
+	while (!lasm_lexer_should_stop(lasm_lexer_lex(&parser->lexer, &token)))
 	{
+		if (lasm_token_type_keyword_end == token.type) break;
 		// todo: should fail if lasm_token_type_eof is found before lasm_token_type_keyword_end
 		continue;
 	}
