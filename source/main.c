@@ -294,7 +294,7 @@ static void build(int32_t* const argc, const char_t*** const argv)
 
 	if (NULL == output)
 	{
-		output = source;
+		output = "a.out";
 	}
 
 	if (NULL == source)

@@ -42,7 +42,7 @@ const char_t* lasm_ast_perm_type_to_string(const lasm_ast_perm_type_e type)
 
 		default:
 		{
-			lasm_debug_assert(0);
+			lasm_debug_assert(0);  // note: sanity check for developers.
 			return NULL;
 		} break;
 	}
