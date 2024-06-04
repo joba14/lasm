@@ -55,7 +55,7 @@ const char_t* lasm_token_type_to_string(const lasm_token_type_e type)
 		case lasm_token_type_literal_uval: { return "uval";  } break;
 		case lasm_token_type_literal_rune: { return "rune";  } break;
 		case lasm_token_type_literal_str:  { return "str";   } break;
-		case lasm_token_type_identifier:   { return "ident"; } break;
+		case lasm_token_type_ident:        { return "ident"; } break;
 		case lasm_token_type_eof:          { return "eof";   } break;
 		case lasm_token_type_none:         { return "none";  } break;
 
@@ -116,17 +116,17 @@ const char_t* lasm_token_to_string(const lasm_token_s* const token)
 		{
 			written += (uint64_t)snprintf(
 				token_string_buffer + written, token_string_buffer_capacity - written,
-				", data='%.*s'", (int32_t)token->as.string.length, token->as.string.data
+				", data='%.*s'", (int32_t)token->as.str.length, token->as.str.data
 			);
 		} break;
 
-		case lasm_token_type_identifier:
+		case lasm_token_type_ident:
 		{
-			lasm_debug_assert(token->as.identifier.data != NULL);
-			lasm_debug_assert(token->as.identifier.length > 0);
+			lasm_debug_assert(token->as.ident.data != NULL);
+			lasm_debug_assert(token->as.ident.length > 0);
 			written += (uint64_t)snprintf(
 				token_string_buffer + written, token_string_buffer_capacity - written,
-				", data='%.*s'", (int32_t)token->as.identifier.length, token->as.identifier.data
+				", data='%.*s'", (int32_t)token->as.ident.length, token->as.ident.data
 			);
 		} break;
 

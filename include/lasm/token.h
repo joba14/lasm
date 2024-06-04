@@ -57,7 +57,7 @@ typedef enum
 		= lasm_token_type_informationless_count,
 	lasm_token_type_literal_rune,
 	lasm_token_type_literal_str,
-	lasm_token_type_identifier,
+	lasm_token_type_ident,
 
 	// Magic tokens
 	lasm_token_type_eof,
@@ -80,13 +80,13 @@ typedef struct
 		{
 			char_t*  data;
 			uint64_t length;
-		} string;
+		} str;
 
 		struct
 		{
 			char_t*  data;
 			uint64_t length;
-		} identifier;
+		} ident;
 	} as;
 } lasm_token_s;
 

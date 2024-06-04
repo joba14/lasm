@@ -99,7 +99,7 @@ lasm_ast_label_s* lasm_parser_parse_label(lasm_parser_s* const parser)
 		);
 	}
 
-	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_identifier)
+	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_ident)
 	{
 		log_parser_error(token.location,
 			"expected an identifier token after attributes list for the label, but found '%s' token. a label name must follow\n"
@@ -113,7 +113,7 @@ lasm_ast_label_s* lasm_parser_parse_label(lasm_parser_s* const parser)
 		);
 	}
 
-	label->name = token.as.identifier.data;
+	label->name = token.as.ident.data;
 
 	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_colon)
 	{

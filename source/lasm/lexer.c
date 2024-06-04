@@ -596,12 +596,12 @@ static lasm_token_type_e lex_keyword_or_identifier(lasm_lexer_s* const lexer, la
 		}
 	}
 
-	token->type = lasm_token_type_identifier;
-	token->as.identifier.data = lasm_arena_alloc(lexer->arena, lexer->buffer.length);
-	lasm_debug_assert(token->as.identifier.data != NULL);
+	token->type = lasm_token_type_ident;
+	token->as.ident.data = lasm_arena_alloc(lexer->arena, lexer->buffer.length);
+	lasm_debug_assert(token->as.ident.data != NULL);
 
-	for (uint64_t index = 0; index < lexer->buffer.length; ++index) token->as.identifier.data[index] = lexer->buffer.data[index];
-	token->as.identifier.length = lexer->buffer.length;
+	for (uint64_t index = 0; index < lexer->buffer.length; ++index) token->as.ident.data[index] = lexer->buffer.data[index];
+	token->as.ident.length = lexer->buffer.length;
 	clear_buffer(lexer);
 	return token->type;
 }
@@ -968,8 +968,8 @@ static lasm_token_type_e lex_single_line_string_literal_token(lasm_lexer_s* cons
 
 	lasm_common_memcpy(data, lexer->buffer.data, lexer->buffer.length);
 	token->type = lasm_token_type_literal_str;
-	token->as.string.length = lexer->buffer.length;
-	token->as.string.data = data;
+	token->as.str.length = lexer->buffer.length;
+	token->as.str.data = data;
 
 	clear_buffer(lexer);
 	return token->type;
