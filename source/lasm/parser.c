@@ -129,11 +129,14 @@ lasm_ast_label_s* lasm_parser_parse_label(lasm_parser_s* const parser)
 		);
 	}
 
+	// todo: at this point,  the actuall assembly should  be parsed. this means
+	// that  depending on the target architecture, different  parsers should be
+	// used.
+
 	// todo: remove this temporary body skipper:
 	while (!lasm_lexer_should_stop(lasm_lexer_lex(&parser->lexer, &token)))
 	{
 		if (lasm_token_type_keyword_end == token.type) break;
-		// todo: should fail if lasm_token_type_eof is found before lasm_token_type_keyword_end
 		continue;
 	}
 	// todo: parse the body (instructions) until
