@@ -68,7 +68,7 @@ lasm_ast_label_s* lasm_parser_parse_label(lasm_parser_s* const parser)
 		log_parser_error(token.location,
 			"expected a symbolic token '[', but found '%s' token. all global definitions must be labels which start\n"
 			"with the attributes list. follow the example below:\n"
-			"    " lasm_red "v~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
+			"    " lasm_red "v~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
 			"    " lasm_red "[" lasm_reset "addr=<value>, align=<value>, size=<value>, perm=<value>]\n"
 			"    "          "example:\n"
 			"    "          "    ; ... \n"
@@ -130,8 +130,11 @@ lasm_ast_label_s* lasm_parser_parse_label(lasm_parser_s* const parser)
 	}
 
 	// todo: remove this temporary body skipper:
-	while (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_keyword_end)
+	(void)lasm_lexer_lex(&parser->lexer, &token);
+	while  ((token.type != lasm_token_type_keyword_end) &&
+			(token.type != lasm_token_type_eof))
 	{
+		// todo: should fail if lasm_token_type_eof is found before lasm_token_type_keyword_end
 		continue;
 	}
 	// todo: parse the body (instructions) until
