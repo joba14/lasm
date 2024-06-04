@@ -50,6 +50,8 @@ typedef enum
 	lasm_ast_perm_type_none,
 } lasm_ast_perm_type_e;
 
+const char_t* lasm_ast_perm_type_to_string(const lasm_ast_perm_type_e type);
+
 typedef struct
 {
 	lasm_ast_perm_type_e value;
@@ -69,31 +71,14 @@ typedef struct
 	} as;
 } lasm_ast_attr_s;
 
-typedef enum
-{
-	lasm_ast_inst_type_nop,
-} lasm_ast_inst_type_e;
-
-typedef struct
-{
-	void* _dummy;
-} lasm_ast_inst_nop_s;
-
-typedef struct
-{
-	lasm_ast_inst_type_e type;
-
-	union
-	{
-		lasm_ast_inst_nop_s nop;
-	} as;
-} lasm_ast_inst_s;
-
 typedef struct
 {
 	lasm_ast_attr_s attrs[lasm_ast_attr_types_count];
 	const char_t* name;
+	lasm_tokens_vector_s body;
 } lasm_ast_label_s;
+
+const char_t* lasm_ast_label_to_string(const lasm_ast_label_s* const label);
 
 typedef struct
 {

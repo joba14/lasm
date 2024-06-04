@@ -311,7 +311,7 @@ static void build(int32_t* const argc, const char_t*** const argv)
 		lasm_ast_label_s* label = NULL;
 		while ((label = lasm_parser_parse_label(&parser)) != NULL)
 		{
-			lasm_logger_info("label.name=%s", label->name);
+			lasm_logger_log("%s\n", lasm_ast_label_to_string(label));
 		}
 
 		lasm_parser_drop(&parser);

@@ -77,7 +77,7 @@
 			                                                                   \
 			if (vector->count > 0)                                             \
 			{                                                                  \
-				lasm_memcpy(new_data, vector->data,                            \
+				lasm_common_memcpy(new_data, vector->data,                     \
 					vector->count * sizeof(_element_type)                      \
 				);                                                             \
 			}                                                                  \

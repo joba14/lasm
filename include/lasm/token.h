@@ -14,6 +14,8 @@
 #define __lasm__include__lasm__token_h__
 
 #include "lasm/common.h"
+#include "lasm/arena.h"
+#include "lasm/vector.h"
 #include "lasm/utf8.h"
 
 typedef struct
@@ -112,5 +114,7 @@ lasm_token_s lasm_token_new(const lasm_token_type_e type, const lasm_location_s 
  * @return const char_t*
  */
 const char_t* lasm_token_to_string(const lasm_token_s* const token);
+
+lasm_define_vector_type(lasm_tokens_vector, lasm_token_s);
 
 #endif
