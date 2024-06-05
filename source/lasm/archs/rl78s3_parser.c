@@ -10,11 +10,11 @@
  * @date 2024-06-05
  */
 
-#include "lasm/archs/x64_86_parser.h"
+#include "lasm/archs/rl78s3_parser.h"
 #include "lasm/debug.h"
 #include "lasm/logger.h"
 
-void x64_86_parser_parse_tokens(lasm_lexer_s* const lexer, lasm_bytes_vector_s* const body)
+void rl78s3_parser_parse_tokens(lasm_lexer_s* const lexer, lasm_bytes_vector_s* const body)
 {
 	lasm_debug_assert(lexer != NULL);
 	lasm_debug_assert(body != NULL);
@@ -25,10 +25,14 @@ void x64_86_parser_parse_tokens(lasm_lexer_s* const lexer, lasm_bytes_vector_s* 
 	{
 		if (lasm_token_type_keyword_end == token.type) return;
 
+		// todo: implement!
 		if ((lasm_token_type_ident == token.type) && (lasm_common_strcmp(token.as.ident.data, "nop") == 0))
 		{
+			// todo: implement!
 			lasm_bytes_vector_push(body, 0x00);
+			// todo: implement!
 		}
+		// todo: implement!
 
 		lasm_logger_debug("%s", lasm_token_to_string(&token));
 	}

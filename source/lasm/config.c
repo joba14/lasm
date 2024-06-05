@@ -44,8 +44,7 @@ static const char_t* const g_usage_banner =
 
 static const char_t* _g_supported_archs[lasm_arch_types_count] =
 {
-	[lasm_arch_type_x64_86] = "x64_86",
-	[lasm_arch_type_arn16]  = "arn16" ,
+	[lasm_arch_type_rl78s3] = "rl78s3",
 };
 
 static const char_t* _g_supported_formats[lasm_format_types_count] =
@@ -189,11 +188,16 @@ static const char_t* _supported_archs_to_string(void)
 	{
 		written += (uint64_t)snprintf(archs_list_string_buffer + written, archs_list_string_buffer_capacity - written, "%s", _g_supported_archs[index]);
 
-		if (index < (lasm_arch_types_count - 1))
+		if ((index + 1) >= lasm_arch_types_count)
+		{
+			break;
+		}
+
+		if ((index + 1) < lasm_arch_types_count)
 		{
 			written += (uint64_t)snprintf(archs_list_string_buffer + written, archs_list_string_buffer_capacity - written, "%s", ", ");
 
-			if (index == (lasm_arch_types_count - 2))
+			if ((index + 2) == lasm_arch_types_count)
 			{
 				written += (uint64_t)snprintf(archs_list_string_buffer + written, archs_list_string_buffer_capacity - written, "%s", "and ");
 			}

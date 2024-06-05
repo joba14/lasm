@@ -64,7 +64,7 @@ static void sources(build_command_s* const command)
 	build_vector_append(command, "./source/lasm/token.c");
 	build_vector_append(command, "./source/lasm/lexer.c");
 	build_vector_append(command, "./source/lasm/parser.c");
-	build_vector_append(command, "./source/lasm/archs/x64_86_parser.c");
+	build_vector_append(command, "./source/lasm/archs/rl78s3_parser.c");
 	build_vector_append(command, "./source/main.c");
 }
 
@@ -111,7 +111,7 @@ build_target(release, "build the project in release build configuration.")
 build_target(run_debug, "run the project in debug configuration.")
 {
 	build_command_s command = {0};
-	build_command_append(&command, "./build/debug/"PROJECT_NAME, "build", "-a", "x64_86", "-f", "elf", "./examples/experiments.lasm");
+	build_command_append(&command, "./build/debug/"PROJECT_NAME, "build", "-a", "rl78s3", "-f", "elf", "./examples/experiments.lasm");
 	const bool_t status = build_proc_run_sync(&command);
 	build_vector_drop(&command);
 	return status;
@@ -120,7 +120,7 @@ build_target(run_debug, "run the project in debug configuration.")
 build_target(run_release, "run the project in release configuration.")
 {
 	build_command_s command = {0};
-	build_command_append(&command, "./build/release/"PROJECT_NAME, "build", "-a", "x64_86", "-f", "elf", "./examples/experiments.lasm");
+	build_command_append(&command, "./build/release/"PROJECT_NAME, "build", "-a", "rl78s3", "-f", "elf", "./examples/experiments.lasm");
 	const bool_t status = build_proc_run_sync(&command);
 	build_vector_drop(&command);
 	return status;
