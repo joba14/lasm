@@ -23,13 +23,13 @@ static const char_t* const g_usage_banner =
 	"usage: %s <command>\n"
 	"\n"
 	"commands:\n"
-	"    _run_build_command [options] <source.lasm>       _run_build_command the project with provided source file.\n"
+	"    build [options] <source.lasm>       build the project with provided source file.\n"
 	"        required:\n"
 	"            -a, --arch <name>           set the target architecture for the executable. supported architectures\n"
 	"                                        are: %s.\n"
 	"            -f, --format <name>         set the target format for the executable. supported formats are:\n"
 	"                                        %s.\n"
-	"            <source.lasm>               source file to _run_build_command.\n"
+	"            <source.lasm>               source file to build.\n"
 	"        optional:\n"
 	"            -e, --entry <name>          set the entry name symbol for the executable. defaults to the\n"
 	"                                        name \'main\'.\n"
@@ -239,7 +239,7 @@ static void _run_build_command(int32_t* const argc, const char_t*** const argv)
 		{
 			if (arch != NULL)
 			{
-				lasm_logger_error("multiple --arch, -a arguments found in the command line arguments in '_run_build_command' command.");
+				lasm_logger_error("multiple --arch, -a arguments found in the command line arguments in 'build' command.");
 				_print_usage_banner();
 				lasm_common_exit(1);
 			}
@@ -252,7 +252,7 @@ static void _run_build_command(int32_t* const argc, const char_t*** const argv)
 		{
 			if (format != NULL)
 			{
-				lasm_logger_error("multiple --format, -f arguments found in the command line arguments in '_run_build_command' command.");
+				lasm_logger_error("multiple --format, -f arguments found in the command line arguments in 'build' command.");
 				_print_usage_banner();
 				lasm_common_exit(1);
 			}
@@ -265,7 +265,7 @@ static void _run_build_command(int32_t* const argc, const char_t*** const argv)
 		{
 			if (entry != NULL)
 			{
-				lasm_logger_error("multiple --entry, -e arguments found in the command line arguments in '_run_build_command' command.");
+				lasm_logger_error("multiple --entry, -e arguments found in the command line arguments in 'build' command.");
 				_print_usage_banner();
 				lasm_common_exit(1);
 			}
@@ -278,7 +278,7 @@ static void _run_build_command(int32_t* const argc, const char_t*** const argv)
 		{
 			if (output != NULL)
 			{
-				lasm_logger_error("multiple --output, -o arguments found in the command line arguments in '_run_build_command' command.");
+				lasm_logger_error("multiple --output, -o arguments found in the command line arguments in 'build' command.");
 				_print_usage_banner();
 				lasm_common_exit(1);
 			}
@@ -291,7 +291,7 @@ static void _run_build_command(int32_t* const argc, const char_t*** const argv)
 		{
 			if (source != NULL)
 			{
-				lasm_logger_error("multiple source files found in the command line arguments in '_run_build_command' command.");
+				lasm_logger_error("multiple source files found in the command line arguments in 'build' command.");
 				_print_usage_banner();
 				lasm_common_exit(1);
 			}
@@ -384,7 +384,7 @@ static void _run_build_command(int32_t* const argc, const char_t*** const argv)
 
 	if (NULL == source)
 	{
-		lasm_logger_error("source file was not provided in '_run_build_command' command.");
+		lasm_logger_error("source file was not provided in 'build' command.");
 		_print_usage_banner();
 		lasm_common_exit(1);
 	}
