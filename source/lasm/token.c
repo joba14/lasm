@@ -16,7 +16,7 @@
 
 #include <stdio.h>
 
-static const char_t* const g_token_type_to_string_map[] =
+static const char_t* const _g_token_type_to_string_map[] =
 {
 	[lasm_token_type_keyword_entry]				= "entry",
 	[lasm_token_type_keyword_addr]				= "addr",
@@ -39,13 +39,13 @@ static const char_t* const g_token_type_to_string_map[] =
 };
 
 _Static_assert(
-	11 == lasm_token_type_keywords_count,
-	"g_token_type_to_string_map is not in sync with lasm_token_type_e enum!"
+	lasm_token_type_keywords_count == 11,
+	"_g_token_type_to_string_map is not in sync with lasm_token_type_e enum!"
 );
 
 _Static_assert(
-	(sizeof(g_token_type_to_string_map) / sizeof(g_token_type_to_string_map[0])) == (lasm_token_type_informationless_count),
-	"g_token_type_to_string_map is not in sync with lasm_token_type_e enum!"
+	(lasm_token_type_informationless_count) == (sizeof(_g_token_type_to_string_map) / sizeof(_g_token_type_to_string_map[0])),
+	"_g_token_type_to_string_map is not in sync with lasm_token_type_e enum!"
 );
 
 const char_t* lasm_token_type_to_string(const lasm_token_type_e type)
@@ -61,8 +61,8 @@ const char_t* lasm_token_type_to_string(const lasm_token_type_e type)
 
 		default:
 		{
-			lasm_debug_assert(type < (sizeof(g_token_type_to_string_map) / sizeof(g_token_type_to_string_map[0])));
-			const char_t* const stringified_type = (const char_t* const)g_token_type_to_string_map[type];
+			lasm_debug_assert(type < (sizeof(_g_token_type_to_string_map) / sizeof(_g_token_type_to_string_map[0])));
+			const char_t* const stringified_type = (const char_t* const)_g_token_type_to_string_map[type];
 			lasm_debug_assert(stringified_type != NULL);
 			return stringified_type;
 		} break;

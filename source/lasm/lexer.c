@@ -21,7 +21,7 @@
 #include <errno.h>
 #include <ctype.h>
 
-#define log_lexer_error(_location, _format, ...)                               \
+#define _log_lexer_error(_location, _format, ...)                              \
 	do                                                                         \
 	{                                                                          \
 		(void)fprintf(stderr, "%s:%lu:%lu: ",                                  \
@@ -36,7 +36,7 @@
  * @param location location to update
  * @param c        symbol to reference
  */
-static void update_location(lasm_location_s* const location, const utf8char_t c);
+static void _update_location(lasm_location_s* const location, const utf8char_t c);
 
 /**
  * @brief Append to the lexer's buffer.
@@ -45,10 +45,10 @@ static void update_location(lasm_location_s* const location, const utf8char_t c)
  * @param buffer buffer to append to
  * @param size   length of the buffer
  */
-static void append_buffer(lasm_lexer_s* const lexer, const char_t* const buffer, const uint64_t size);
+static void _append_buffer(lasm_lexer_s* const lexer, const char_t* const buffer, const uint64_t size);
 
 /**
- * @brief Fetch next_utf8char utf-8 symbol from the lexer and update the location.
+ * @brief Fetch next utf-8 symbol from the lexer and update the location.
  * 
  * @param lexer    lexer reference
  * @param location location to update
@@ -56,7 +56,7 @@ static void append_buffer(lasm_lexer_s* const lexer, const char_t* const buffer,
  * 
  * @return utf8char_t
  */
-static utf8char_t next_utf8char(lasm_lexer_s* const lexer, lasm_location_s* const location, const bool_t buffer);
+static utf8char_t _next_utf8char(lasm_lexer_s* const lexer, lasm_location_s* const location, const bool_t buffer);
 
 /**
  * @brief Check if symbol is a white space symbol.
@@ -65,7 +65,7 @@ static utf8char_t next_utf8char(lasm_lexer_s* const lexer, lasm_location_s* cons
  * 
  * @return bool_t
  */
-static bool_t is_symbol_a_white_space(const utf8char_t c);
+static bool_t _is_symbol_a_white_space(const utf8char_t c);
 
 /**
  * @brief Get the utf-8 symbol from lexer's file and update location.
@@ -75,14 +75,14 @@ static bool_t is_symbol_a_white_space(const utf8char_t c);
  * 
  * @return utf8char_t
  */
-static utf8char_t get_utf8char(lasm_lexer_s* const lexer, lasm_location_s* const location);
+static utf8char_t _get_utf8char(lasm_lexer_s* const lexer, lasm_location_s* const location);
 
 /**
  * @brief Clear (reset) the lexer's buffer.
  * 
  * @param lexer lexer reference
  */
-static void clear_buffer(lasm_lexer_s* const lexer);
+static void _clear_buffer(lasm_lexer_s* const lexer);
 
 /**
  * @brief Consume the lexer's buffer.
@@ -90,7 +90,7 @@ static void clear_buffer(lasm_lexer_s* const lexer);
  * @param lexer  lexer reference
  * @param length amount of the buffer to consume
  */
-static void consume_buffer(lasm_lexer_s* const lexer, const uint64_t length);
+static void _consume_buffer(lasm_lexer_s* const lexer, const uint64_t length);
 
 /**
  * @brief Push utf-8 symbol to lexer's cache.
@@ -99,7 +99,7 @@ static void consume_buffer(lasm_lexer_s* const lexer, const uint64_t length);
  * @param c      symbol to push
  * @param buffer buffer the symbol
  */
-static void push_utf8char(lasm_lexer_s* const lexer, const utf8char_t c, const bool_t buffer);
+static void _push_utf8char(lasm_lexer_s* const lexer, const utf8char_t c, const bool_t buffer);
 
 /**
  * @brief Check if symbol is first of numeric literal.
@@ -108,7 +108,7 @@ static void push_utf8char(lasm_lexer_s* const lexer, const utf8char_t c, const b
  * 
  * @return bool_t
  */
-static inline bool_t is_symbol_first_of_numeric_literal(const utf8char_t c);
+static inline bool_t _is_symbol_first_of_numeric_literal(const utf8char_t c);
 
 /**
  * @brief Check if symbol is first of a keyword or identifier.
@@ -117,7 +117,7 @@ static inline bool_t is_symbol_first_of_numeric_literal(const utf8char_t c);
  * 
  * @return bool_t
  */
-static inline bool_t is_symbol_first_of_keyword_or_identifier(const utf8char_t c);
+static inline bool_t _is_symbol_first_of_keyword_or_identifier(const utf8char_t c);
 
 /**
  * @brief Check if symbol is not first of a keyword or identifier.
@@ -126,7 +126,7 @@ static inline bool_t is_symbol_first_of_keyword_or_identifier(const utf8char_t c
  * 
  * @return bool_t
  */
-static inline bool_t is_symbol_not_first_of_keyword_or_identifier(const utf8char_t c);
+static inline bool_t _is_symbol_not_first_of_keyword_or_identifier(const utf8char_t c);
 
 /**
  * @brief Skip (nested) multi line comments.
@@ -136,7 +136,7 @@ static inline bool_t is_symbol_not_first_of_keyword_or_identifier(const utf8char
  * 
  * @return bool_t
  */
-static bool_t skip_nested_multi_line_comments(lasm_lexer_s* const lexer, utf8char_t c);
+static bool_t _skip_nested_multi_line_comments(lasm_lexer_s* const lexer, utf8char_t c);
 
 /**
  * @brief Compute exponent for a numeric literal.
@@ -147,7 +147,7 @@ static bool_t skip_nested_multi_line_comments(lasm_lexer_s* const lexer, utf8cha
  * 
  * @return uint64_t
  */
-static uint64_t compute_numeric_literal_exponent(uint64_t value, const uint64_t exponent, const bool_t is_signed);
+static uint64_t _compute_numeric_literal_exponent(uint64_t value, const uint64_t exponent, const bool_t is_signed);
 
 /**
  * @brief Lex keyword or identifier token.
@@ -157,7 +157,7 @@ static uint64_t compute_numeric_literal_exponent(uint64_t value, const uint64_t 
  * 
  * @return lasm_token_type_e
  */
-static lasm_token_type_e lex_keyword_or_identifier(lasm_lexer_s* const lexer, lasm_token_s* const token);
+static lasm_token_type_e _lex_keyword_or_identifier(lasm_lexer_s* const lexer, lasm_token_s* const token);
 
 /**
  * @brief Lex numeric literal.
@@ -167,7 +167,7 @@ static lasm_token_type_e lex_keyword_or_identifier(lasm_lexer_s* const lexer, la
  * 
  * @return lasm_token_type_e
  */
-static lasm_token_type_e lex_numeric_literal_token(lasm_lexer_s* const lexer, lasm_token_s* const token);
+static lasm_token_type_e _lex_numeric_literal_token(lasm_lexer_s* const lexer, lasm_token_s* const token);
 
 /**
  * @brief Decode a rune.
@@ -177,7 +177,7 @@ static lasm_token_type_e lex_numeric_literal_token(lasm_lexer_s* const lexer, la
  * 
  * @return uint8_t
  */
-static uint8_t decode_single_rune(lasm_lexer_s* const lexer, char_t* const out);
+static uint8_t _decode_single_rune(lasm_lexer_s* const lexer, char_t* const out);
 
 /**
  * @brief Lex rune literal token.
@@ -187,7 +187,7 @@ static uint8_t decode_single_rune(lasm_lexer_s* const lexer, char_t* const out);
  * 
  * @return lasm_token_type_e
  */
-static lasm_token_type_e lex_rune_literal_token(lasm_lexer_s* const lexer, lasm_token_s* const token);
+static lasm_token_type_e _lex_rune_literal_token(lasm_lexer_s* const lexer, lasm_token_s* const token);
 
 /**
  * @brief Lex single line string literal token.
@@ -197,7 +197,7 @@ static lasm_token_type_e lex_rune_literal_token(lasm_lexer_s* const lexer, lasm_
  * 
  * @return lasm_token_type_e
  */
-static lasm_token_type_e lex_single_line_string_literal_token(lasm_lexer_s* const lexer, lasm_token_s* const token);
+static lasm_token_type_e _lex_single_line_string_literal_token(lasm_lexer_s* const lexer, lasm_token_s* const token);
 
 /**
  * @brief Lex 2 symbols token.
@@ -208,7 +208,7 @@ static lasm_token_type_e lex_single_line_string_literal_token(lasm_lexer_s* cons
  * 
  * @return lasm_token_type_e 
  */
-static lasm_token_type_e lex_2_symbols_token(lasm_lexer_s* const lexer, lasm_token_s* const token, utf8char_t c);
+static lasm_token_type_e _lex_2_symbols_token(lasm_lexer_s* const lexer, lasm_token_s* const token, utf8char_t c);
 
 lasm_lexer_s lasm_lexer_new(lasm_arena_s* const arena, const char_t* const file_path)
 {
@@ -312,7 +312,7 @@ lasm_token_type_e lasm_lexer_lex(lasm_lexer_s* const lexer, lasm_token_s* const 
 		return token->type;
 	}
 
-	utf8char_t c = get_utf8char(lexer, &token->location);
+	utf8char_t c = _get_utf8char(lexer, &token->location);
 
 	if (lasm_utf8_invalid == c)
 	{
@@ -321,16 +321,16 @@ lasm_token_type_e lasm_lexer_lex(lasm_lexer_s* const lexer, lasm_token_s* const 
 		return token->type;
 	}
 
-	if (is_symbol_first_of_numeric_literal(c))
+	if (_is_symbol_first_of_numeric_literal(c))
 	{
-		push_utf8char(lexer, c, false);
-		return lex_numeric_literal_token(lexer, token);
+		_push_utf8char(lexer, c, false);
+		return _lex_numeric_literal_token(lexer, token);
 	}
 
-	if (is_symbol_first_of_keyword_or_identifier(c))
+	if (_is_symbol_first_of_keyword_or_identifier(c))
 	{
-		push_utf8char(lexer, c, false);
-		return lex_keyword_or_identifier(lexer, token);
+		_push_utf8char(lexer, c, false);
+		return _lex_keyword_or_identifier(lexer, token);
 	}
 
 	const lasm_location_s start_location = lexer->location;
@@ -340,14 +340,14 @@ lasm_token_type_e lasm_lexer_lex(lasm_lexer_s* const lexer, lasm_token_s* const 
 		case ';':
 		case '#':
 		{
-			while (((c = next_utf8char(lexer, NULL, true)) != lasm_utf8_invalid) && (c != '\n'));
-			clear_buffer(lexer);
+			while (((c = _next_utf8char(lexer, NULL, true)) != lasm_utf8_invalid) && (c != '\n'));
+			_clear_buffer(lexer);
 			return lasm_lexer_lex(lexer, token);
 		} break;
-		case '/':  { (void)lex_2_symbols_token(lexer, token, c);                                      } break;
+		case '/':  { (void)_lex_2_symbols_token(lexer, token, c);                                      } break;
 
-		case '\'': { (void)lex_rune_literal_token(lexer, token);                                      } break;
-		case '\"': { (void)lex_single_line_string_literal_token(lexer, token);                        } break;
+		case '\'': { (void)_lex_rune_literal_token(lexer, token);                                      } break;
+		case '\"': { (void)_lex_single_line_string_literal_token(lexer, token);                        } break;
 
 		case '.':  { *token = lasm_token_new(lasm_token_type_symbolic_dot,           start_location); } break;
 		case ',':  { *token = lasm_token_new(lasm_token_type_symbolic_comma,         start_location); } break;
@@ -360,7 +360,7 @@ lasm_token_type_e lasm_lexer_lex(lasm_lexer_s* const lexer, lasm_token_s* const 
 		{
 			static char_t buffer[lasm_utf8_max_size];
 			const uint8_t size = lasm_utf8_encode(buffer, c);
-			log_lexer_error(lexer->location, "invalid token encountered: '%.*s'", (int32_t)size, buffer);
+			_log_lexer_error(lexer->location, "invalid token encountered: '%.*s'", (int32_t)size, buffer);
 		} break;
 	}
 
@@ -380,7 +380,7 @@ void lasm_lexer_unlex(lasm_lexer_s* const lexer, const lasm_token_s* const token
 	lexer->token = *token;
 }
 
-static void update_location(lasm_location_s* const location, const utf8char_t c)
+static void _update_location(lasm_location_s* const location, const utf8char_t c)
 {
 	lasm_debug_assert(location != NULL);
 
@@ -395,7 +395,7 @@ static void update_location(lasm_location_s* const location, const utf8char_t c)
 	}
 }
 
-static void append_buffer(lasm_lexer_s* const lexer, const char_t* const buffer, const uint64_t size)
+static void _append_buffer(lasm_lexer_s* const lexer, const char_t* const buffer, const uint64_t size)
 {
 	lasm_debug_assert(lexer != NULL);
 	lasm_debug_assert(buffer != NULL);
@@ -416,7 +416,7 @@ static void append_buffer(lasm_lexer_s* const lexer, const char_t* const buffer,
 	lexer->buffer.data[lexer->buffer.length] = 0;
 }
 
-static utf8char_t next_utf8char(lasm_lexer_s* const lexer, lasm_location_s* const location, const bool_t buffer)
+static utf8char_t _next_utf8char(lasm_lexer_s* const lexer, lasm_location_s* const location, const bool_t buffer)
 {
 	lasm_debug_assert(lexer != NULL);
 	utf8char_t c = lasm_utf8_invalid;
@@ -430,13 +430,13 @@ static utf8char_t next_utf8char(lasm_lexer_s* const lexer, lasm_location_s* cons
 	else
 	{
 		c = lasm_utf8_get(lexer->file);
-		update_location(&lexer->location, c);
+		_update_location(&lexer->location, c);
 
 		if ((lasm_utf8_invalid == c) && (!feof(lexer->file)))
 		{
 			static char_t utf8_buffer[lasm_utf8_max_size];
 			const uint8_t size = lasm_utf8_encode(utf8_buffer, c);
-			log_lexer_error(lexer->location, "invalid utf-8 sequence encountered: %.*s", (int32_t)size, utf8_buffer);
+			_log_lexer_error(lexer->location, "invalid utf-8 sequence encountered: %.*s", (int32_t)size, utf8_buffer);
 		}
 	}
 
@@ -446,7 +446,7 @@ static utf8char_t next_utf8char(lasm_lexer_s* const lexer, lasm_location_s* cons
 
 		for (uint8_t index = 0; (index < 2) && (lexer->cache[index] != lasm_utf8_invalid); ++index)
 		{
-			update_location(&lexer->location, lexer->cache[index]);
+			_update_location(&lexer->location, lexer->cache[index]);
 		}
 	}
 
@@ -457,24 +457,24 @@ static utf8char_t next_utf8char(lasm_lexer_s* const lexer, lasm_location_s* cons
 
 	static char_t utf8_buffer[lasm_utf8_max_size];
 	const uint8_t size = lasm_utf8_encode(utf8_buffer, c);
-	append_buffer(lexer, utf8_buffer, size);
+	_append_buffer(lexer, utf8_buffer, size);
 	return c;
 }
 
-static bool_t is_symbol_a_white_space(const utf8char_t c)
+static bool_t _is_symbol_a_white_space(const utf8char_t c)
 {
 	return (('\t' == c) || ('\n' == c) || ('\r' == c) || (' ' == c));
 }
 
-static utf8char_t get_utf8char(lasm_lexer_s* const lexer, lasm_location_s* const location)
+static utf8char_t _get_utf8char(lasm_lexer_s* const lexer, lasm_location_s* const location)
 {
 	lasm_debug_assert(lexer != NULL);
 	utf8char_t c = lasm_utf8_invalid;
-	while (((c = next_utf8char(lexer, location, false)) != lasm_utf8_invalid) && is_symbol_a_white_space(c));
+	while (((c = _next_utf8char(lexer, location, false)) != lasm_utf8_invalid) && _is_symbol_a_white_space(c));
 	return c;
 }
 
-static void clear_buffer(lasm_lexer_s* const lexer)
+static void _clear_buffer(lasm_lexer_s* const lexer)
 {
 	lasm_debug_assert(lexer != NULL);
 	lasm_debug_assert(lexer->buffer.data != NULL);
@@ -482,7 +482,7 @@ static void clear_buffer(lasm_lexer_s* const lexer)
 	lexer->buffer.data[0] = 0;
 }
 
-static void consume_buffer(lasm_lexer_s* const lexer, const uint64_t length)
+static void _consume_buffer(lasm_lexer_s* const lexer, const uint64_t length)
 {
 	for (uint64_t index = 0; index < length; ++index)
 	{
@@ -492,7 +492,7 @@ static void consume_buffer(lasm_lexer_s* const lexer, const uint64_t length)
 	lexer->buffer.data[lexer->buffer.length] = 0;
 }
 
-static void push_utf8char(lasm_lexer_s* const lexer, const utf8char_t c, const bool_t buffer)
+static void _push_utf8char(lasm_lexer_s* const lexer, const utf8char_t c, const bool_t buffer)
 {
 	lasm_debug_assert(lexer != NULL);
 	lasm_debug_assert(lasm_utf8_invalid == lexer->cache[1]);
@@ -501,36 +501,36 @@ static void push_utf8char(lasm_lexer_s* const lexer, const utf8char_t c, const b
 
 	if (buffer)
 	{
-		consume_buffer(lexer, 1);
+		_consume_buffer(lexer, 1);
 	}
 }
 
-static inline bool_t is_symbol_first_of_numeric_literal(const utf8char_t c)
+static inline bool_t _is_symbol_first_of_numeric_literal(const utf8char_t c)
 {
 	return ((c <= 0x7F) && isdigit(c));
 }
 
-static inline bool_t is_symbol_first_of_keyword_or_identifier(const utf8char_t c)
+static inline bool_t _is_symbol_first_of_keyword_or_identifier(const utf8char_t c)
 {
 	return ((c <= 0x7F) && (isalpha(c) || ('_' == c)));
 }
 
-static inline bool_t is_symbol_not_first_of_keyword_or_identifier(const utf8char_t c)
+static inline bool_t _is_symbol_not_first_of_keyword_or_identifier(const utf8char_t c)
 {
 	return ((c <= 0x7F) && (isalnum(c) || ('_' == c) || ('-' == c)));
 }
 
-static bool_t skip_nested_multi_line_comments(lasm_lexer_s* const lexer, utf8char_t c)
+static bool_t _skip_nested_multi_line_comments(lasm_lexer_s* const lexer, utf8char_t c)
 {
 	lasm_debug_assert(lexer != NULL);
 	lasm_debug_assert(c != lasm_utf8_invalid);
 	
-	utf8char_t last_c = c; c = next_utf8char(lexer, NULL, true);
-	while (((last_c = c, c = next_utf8char(lexer, NULL, true)) != lasm_utf8_invalid) && ((last_c != '*') || (c != '/')))
+	utf8char_t last_c = c; c = _next_utf8char(lexer, NULL, true);
+	while (((last_c = c, c = _next_utf8char(lexer, NULL, true)) != lasm_utf8_invalid) && ((last_c != '*') || (c != '/')))
 	{
 		if (('/' == last_c) && ('*' == c))
 		{
-			if (!skip_nested_multi_line_comments(lexer, c))
+			if (!_skip_nested_multi_line_comments(lexer, c))
 			{
 				return false;
 			}
@@ -540,7 +540,7 @@ static bool_t skip_nested_multi_line_comments(lasm_lexer_s* const lexer, utf8cha
 	return (c != lasm_utf8_invalid);
 }
 
-static uint64_t compute_numeric_literal_exponent(uint64_t value, const uint64_t exponent, const bool_t is_signed)
+static uint64_t _compute_numeric_literal_exponent(uint64_t value, const uint64_t exponent, const bool_t is_signed)
 {
 	if (value == 0)
 	{
@@ -568,20 +568,20 @@ static uint64_t compute_numeric_literal_exponent(uint64_t value, const uint64_t 
 	return value;
 }
 
-static lasm_token_type_e lex_keyword_or_identifier(lasm_lexer_s* const lexer, lasm_token_s* const token)
+static lasm_token_type_e _lex_keyword_or_identifier(lasm_lexer_s* const lexer, lasm_token_s* const token)
 {
 	lasm_debug_assert(lexer != NULL);
 	lasm_debug_assert(token != NULL);
 
 	token->location = lexer->location;
-	utf8char_t c = next_utf8char(lexer, &token->location, true);
-	lasm_debug_assert(is_symbol_first_of_keyword_or_identifier(c));
+	utf8char_t c = _next_utf8char(lexer, &token->location, true);
+	lasm_debug_assert(_is_symbol_first_of_keyword_or_identifier(c));
 
-	while ((c = next_utf8char(lexer, NULL, true)) != lasm_utf8_invalid)
+	while ((c = _next_utf8char(lexer, NULL, true)) != lasm_utf8_invalid)
 	{
-		if (!is_symbol_not_first_of_keyword_or_identifier(c))
+		if (!_is_symbol_not_first_of_keyword_or_identifier(c))
 		{
-			push_utf8char(lexer, c, true);
+			_push_utf8char(lexer, c, true);
 			break;
 		}
 	}
@@ -590,7 +590,7 @@ static lasm_token_type_e lex_keyword_or_identifier(lasm_lexer_s* const lexer, la
 	{
 		if (lasm_common_strcmp(lasm_token_type_to_string(index), lexer->buffer.data) == 0)
 		{
-			clear_buffer(lexer);
+			_clear_buffer(lexer);
 			token->type = index;
 			return token->type;
 		}
@@ -602,11 +602,11 @@ static lasm_token_type_e lex_keyword_or_identifier(lasm_lexer_s* const lexer, la
 
 	for (uint64_t index = 0; index < lexer->buffer.length; ++index) token->as.ident.data[index] = lexer->buffer.data[index];
 	token->as.ident.length = lexer->buffer.length;
-	clear_buffer(lexer);
+	_clear_buffer(lexer);
 	return token->type;
 }
 
-static lasm_token_type_e lex_numeric_literal_token(lasm_lexer_s* const lexer, lasm_token_s* const token)
+static lasm_token_type_e _lex_numeric_literal_token(lasm_lexer_s* const lexer, lasm_token_s* const token)
 {
 	lasm_debug_assert(lexer != NULL);
 	lasm_debug_assert(token != NULL);
@@ -629,16 +629,16 @@ static lasm_token_type_e lex_numeric_literal_token(lasm_lexer_s* const lexer, la
 	int32_t old_state = base_dec;
 	int32_t base = 10;
 
-	utf8char_t c = next_utf8char(lexer, &token->location, true), last = 0;
-	lasm_debug_assert(is_symbol_first_of_numeric_literal(c));
+	utf8char_t c = _next_utf8char(lexer, &token->location, true), last = 0;
+	lasm_debug_assert(_is_symbol_first_of_numeric_literal(c));
 
 	if ('0' == c)
 	{
-		c = next_utf8char(lexer, NULL, true);
+		c = _next_utf8char(lexer, NULL, true);
 
-		if (is_symbol_first_of_numeric_literal(c))
+		if (_is_symbol_first_of_numeric_literal(c))
 		{
-			log_lexer_error(token->location, "leading zero in base 10 literal.");
+			_log_lexer_error(token->location, "leading zero in base 10 literal.");
 		}
 		else if ('b' == c)
 		{
@@ -660,7 +660,7 @@ static lasm_token_type_e lex_numeric_literal_token(lasm_lexer_s* const lexer, la
 	if (state != base_dec)
 	{
 		last = c;
-		c = next_utf8char(lexer, NULL, true);
+		c = _next_utf8char(lexer, NULL, true);
 	}
 
 	uint64_t exponent_start = 0;
@@ -688,7 +688,7 @@ static lasm_token_type_e lex_numeric_literal_token(lasm_lexer_s* const lexer, la
 		}
 
 		last = c;
-	} while ((c = next_utf8char(lexer, NULL, true)) != lasm_utf8_invalid);
+	} while ((c = _next_utf8char(lexer, NULL, true)) != lasm_utf8_invalid);
 
 	last = 0;
 
@@ -696,12 +696,12 @@ end:
 	if (last && (!lasm_common_strchr("su", (int32_t)last)) && (!lasm_common_strchr(formats_chars[state & base_mask], (int32_t)last)))
 	{
 		state = old_state;
-		push_utf8char(lexer, c, true);
-		push_utf8char(lexer, last, true);
+		_push_utf8char(lexer, c, true);
+		_push_utf8char(lexer, last, true);
 	}
 	else if (c != lasm_utf8_invalid)
 	{
-		push_utf8char(lexer, c, true);
+		_push_utf8char(lexer, c, true);
 	}
 
 	typedef enum { kind_unknown = -1, kind_iconst, kind_unsigned, } kind_e;
@@ -723,11 +723,11 @@ end:
 
 	const uint8_t prefix_offset = ((10 == base) ? 0 : 2);
 	token->as.uval = strtoumax(lexer->buffer.data + prefix_offset, NULL, base);
-	token->as.uval = compute_numeric_literal_exponent(token->as.uval, exponent, false);
+	token->as.uval = _compute_numeric_literal_exponent(token->as.uval, exponent, false);
 
 	if (errno == ERANGE)
 	{
-		log_lexer_error(token->location, "integer literal overflow.");
+		_log_lexer_error(token->location, "integer literal overflow.");
 	}
 
 	if ((kind_iconst == kind) && (token->as.uval > (uint64_t)INT64_MAX))
@@ -735,16 +735,16 @@ end:
 		token->type = lasm_token_type_literal_uval;
 	}
 
-	clear_buffer(lexer);
+	_clear_buffer(lexer);
 	return token->type;
 }
 
-static uint8_t decode_single_rune(lasm_lexer_s* const lexer, char_t* const out)
+static uint8_t _decode_single_rune(lasm_lexer_s* const lexer, char_t* const out)
 {
 	lasm_debug_assert(lexer != NULL);
 	lasm_debug_assert(out != NULL);
 
-	utf8char_t c = next_utf8char(lexer, NULL, false);
+	utf8char_t c = _next_utf8char(lexer, NULL, false);
 	lasm_debug_assert(c != lasm_utf8_invalid);
 
 	switch (c)
@@ -752,7 +752,7 @@ static uint8_t decode_single_rune(lasm_lexer_s* const lexer, char_t* const out)
 		case '\\':
 		{
 			const lasm_location_s location = lexer->location;
-			c = next_utf8char(lexer, NULL, false);
+			c = _next_utf8char(lexer, NULL, false);
 
 			char_t buffer[9];
 			char_t* end_pointer = NULL;
@@ -773,15 +773,15 @@ static uint8_t decode_single_rune(lasm_lexer_s* const lexer, char_t* const out)
 
 				case 'x':
 				{
-					buffer[0] = (char_t)next_utf8char(lexer, NULL, false);
-					buffer[1] = (char_t)next_utf8char(lexer, NULL, false);
+					buffer[0] = (char_t)_next_utf8char(lexer, NULL, false);
+					buffer[1] = (char_t)_next_utf8char(lexer, NULL, false);
 					buffer[2] = '\0';
 
 					c = (utf8char_t)strtoul(buffer, &end_pointer, 16);
 
 					if (*end_pointer != '\0')
 					{
-						log_lexer_error(location, "invalid hex literal");
+						_log_lexer_error(location, "invalid hex literal");
 					}
 
 					out[0] = (char_t)c;
@@ -790,17 +790,17 @@ static uint8_t decode_single_rune(lasm_lexer_s* const lexer, char_t* const out)
 
 				case 'u':
 				{
-					buffer[0] = (char_t)next_utf8char(lexer, NULL, false);
-					buffer[1] = (char_t)next_utf8char(lexer, NULL, false);
-					buffer[2] = (char_t)next_utf8char(lexer, NULL, false);
-					buffer[3] = (char_t)next_utf8char(lexer, NULL, false);
+					buffer[0] = (char_t)_next_utf8char(lexer, NULL, false);
+					buffer[1] = (char_t)_next_utf8char(lexer, NULL, false);
+					buffer[2] = (char_t)_next_utf8char(lexer, NULL, false);
+					buffer[3] = (char_t)_next_utf8char(lexer, NULL, false);
 					buffer[4] = '\0';
 
 					c = (utf8char_t)strtoul(buffer, &end_pointer, 16);
 
 					if (*end_pointer != '\0')
 					{
-						log_lexer_error(location, "invalid hex literal");
+						_log_lexer_error(location, "invalid hex literal");
 					}
 
 					return lasm_utf8_encode(out, c);
@@ -808,21 +808,21 @@ static uint8_t decode_single_rune(lasm_lexer_s* const lexer, char_t* const out)
 
 				case 'U':
 				{
-					buffer[0] = (char_t)next_utf8char(lexer, NULL, false);
-					buffer[1] = (char_t)next_utf8char(lexer, NULL, false);
-					buffer[2] = (char_t)next_utf8char(lexer, NULL, false);
-					buffer[3] = (char_t)next_utf8char(lexer, NULL, false);
-					buffer[4] = (char_t)next_utf8char(lexer, NULL, false);
-					buffer[5] = (char_t)next_utf8char(lexer, NULL, false);
-					buffer[6] = (char_t)next_utf8char(lexer, NULL, false);
-					buffer[7] = (char_t)next_utf8char(lexer, NULL, false);
+					buffer[0] = (char_t)_next_utf8char(lexer, NULL, false);
+					buffer[1] = (char_t)_next_utf8char(lexer, NULL, false);
+					buffer[2] = (char_t)_next_utf8char(lexer, NULL, false);
+					buffer[3] = (char_t)_next_utf8char(lexer, NULL, false);
+					buffer[4] = (char_t)_next_utf8char(lexer, NULL, false);
+					buffer[5] = (char_t)_next_utf8char(lexer, NULL, false);
+					buffer[6] = (char_t)_next_utf8char(lexer, NULL, false);
+					buffer[7] = (char_t)_next_utf8char(lexer, NULL, false);
 					buffer[8] = '\0';
 
 					c = (utf8char_t)strtoul(&buffer[0], &end_pointer, 16);
 
 					if (*end_pointer != '\0')
 					{
-						log_lexer_error(location, "invalid hex literal");
+						_log_lexer_error(location, "invalid hex literal");
 					}
 
 					return lasm_utf8_encode(out, c);
@@ -830,18 +830,18 @@ static uint8_t decode_single_rune(lasm_lexer_s* const lexer, char_t* const out)
 
 				case lasm_utf8_invalid:
 				{
-					log_lexer_error(lexer->location, "unexpected end of file");
+					_log_lexer_error(lexer->location, "unexpected end of file");
 					return 0;
 				} break;
 
 				default:
 				{
-					log_lexer_error(location, "invalid escape sequence '\\%c'", c);
+					_log_lexer_error(location, "invalid escape sequence '\\%c'", c);
 					return 0;
 				} break;
 			}
 
-			log_lexer_error(location, "invalid escape sequence '\\%c'", c);
+			_log_lexer_error(location, "invalid escape sequence '\\%c'", c);
 			return 0;
 		} break;
 
@@ -852,7 +852,7 @@ static uint8_t decode_single_rune(lasm_lexer_s* const lexer, char_t* const out)
 	}
 }
 
-static lasm_token_type_e lex_rune_literal_token(lasm_lexer_s* const lexer, lasm_token_s* const token)
+static lasm_token_type_e _lex_rune_literal_token(lasm_lexer_s* const lexer, lasm_token_s* const token)
 {
 	lasm_debug_assert(lexer != NULL);
 	lasm_debug_assert(token != NULL);
@@ -864,28 +864,28 @@ static lasm_token_type_e lex_rune_literal_token(lasm_lexer_s* const lexer, lasm_
 		.column = lexer->location.column - 1,
 	};
 
-	utf8char_t c = next_utf8char(lexer, &lexer->location, false);
+	utf8char_t c = _next_utf8char(lexer, &lexer->location, false);
 
 	switch (c)
 	{
 		case '\'':
 		{
-			log_lexer_error(token->location, "expected rune before trailing single quote in rune literal");
+			_log_lexer_error(token->location, "expected rune before trailing single quote in rune literal");
 		} break;
 
 		case '\\':
 		{
 			char_t buffer[lasm_utf8_max_size + 1];
 
-			push_utf8char(lexer, c, false);
-			(void)decode_single_rune(lexer, buffer);
+			_push_utf8char(lexer, c, false);
+			(void)_decode_single_rune(lexer, buffer);
 
 			const char_t* string = buffer;
 			token->as.rune = lasm_utf8_decode(&string);
 
 			if (lasm_utf8_invalid == token->as.rune)
 			{
-				log_lexer_error(token->location, "invalid utf-8 sequence in rune literal");
+				_log_lexer_error(token->location, "invalid utf-8 sequence in rune literal");
 			}
 		} break;
 
@@ -900,7 +900,7 @@ static lasm_token_type_e lex_rune_literal_token(lasm_lexer_s* const lexer, lasm_
 		case '\v':  // //
 		case '\"':  // /
 		{
-			log_lexer_error(token->location, "invalid rune literal encountered: '%c'!", (char_t)c);
+			_log_lexer_error(token->location, "invalid rune literal encountered: '%c'!", (char_t)c);
 		} break;
 
 		default:
@@ -909,16 +909,16 @@ static lasm_token_type_e lex_rune_literal_token(lasm_lexer_s* const lexer, lasm_
 		} break;
 	}
 
-	if (next_utf8char(lexer, NULL, false) != '\'')
+	if (_next_utf8char(lexer, NULL, false) != '\'')
 	{
-		log_lexer_error(token->location, "expected trailing single quote in rune literal");
+		_log_lexer_error(token->location, "expected trailing single quote in rune literal");
 	}
 
 	token->type = lasm_token_type_literal_rune;
 	return token->type;
 }
 
-static lasm_token_type_e lex_single_line_string_literal_token(lasm_lexer_s* const lexer, lasm_token_s* const token)
+static lasm_token_type_e _lex_single_line_string_literal_token(lasm_lexer_s* const lexer, lasm_token_s* const token)
 {
 	lasm_debug_assert(lexer != NULL);
 	lasm_debug_assert(token != NULL);
@@ -931,7 +931,7 @@ static lasm_token_type_e lex_single_line_string_literal_token(lasm_lexer_s* cons
 	};
 
 	utf8char_t c;
-	while (((c = next_utf8char(lexer, NULL, false)) != lasm_utf8_invalid) && (c != '\"'))
+	while (((c = _next_utf8char(lexer, NULL, false)) != lasm_utf8_invalid) && (c != '\"'))
 	{
 		switch (c)
 		{
@@ -946,20 +946,20 @@ static lasm_token_type_e lex_single_line_string_literal_token(lasm_lexer_s* cons
 			case '\v':  // //
 			case '\"':  // /
 			{
-				log_lexer_error(token->location, "invalid rune encountered in single line string literal: '%c'!", (char_t)c);
+				_log_lexer_error(token->location, "invalid rune encountered in single line string literal: '%c'!", (char_t)c);
 			} break;
 		}
 
 		char_t buffer[lasm_utf8_max_size];
-		push_utf8char(lexer, c, false);
+		_push_utf8char(lexer, c, false);
 
-		const uint8_t size = decode_single_rune(lexer, buffer);
-		append_buffer(lexer, buffer, size);
+		const uint8_t size = _decode_single_rune(lexer, buffer);
+		_append_buffer(lexer, buffer, size);
 	}
 
 	if (c == lasm_utf8_invalid)
 	{
-		log_lexer_error(token->location, "unclosed single line string literal found!");
+		_log_lexer_error(token->location, "unclosed single line string literal found!");
 	}
 
 	lasm_debug_assert(lexer->buffer.length > 0);
@@ -971,11 +971,11 @@ static lasm_token_type_e lex_single_line_string_literal_token(lasm_lexer_s* cons
 	token->as.str.length = lexer->buffer.length;
 	token->as.str.data = data;
 
-	clear_buffer(lexer);
+	_clear_buffer(lexer);
 	return token->type;
 }
 
-static lasm_token_type_e lex_2_symbols_token(lasm_lexer_s* const lexer, lasm_token_s* const token, utf8char_t c)
+static lasm_token_type_e _lex_2_symbols_token(lasm_lexer_s* const lexer, lasm_token_s* const token, utf8char_t c)
 {
 	lasm_debug_assert(lexer != NULL);
 	lasm_debug_assert(token != NULL);
@@ -987,23 +987,23 @@ static lasm_token_type_e lex_2_symbols_token(lasm_lexer_s* const lexer, lasm_tok
 	{
 		case '/':
 		{
-			switch ((c = next_utf8char(lexer, NULL, false)))
+			switch ((c = _next_utf8char(lexer, NULL, false)))
 			{
 				case '/':
 				{
-					while (((c = next_utf8char(lexer, NULL, true)) != lasm_utf8_invalid) && (c != '\n'));
-					clear_buffer(lexer);
+					while (((c = _next_utf8char(lexer, NULL, true)) != lasm_utf8_invalid) && (c != '\n'));
+					_clear_buffer(lexer);
 					return lasm_lexer_lex(lexer, token);
 				} break;
 
 				case '*':
 				{
-					if (!skip_nested_multi_line_comments(lexer, c))
+					if (!_skip_nested_multi_line_comments(lexer, c))
 					{
-						log_lexer_error(token->location, "unclosed multi line comment found!");
+						_log_lexer_error(token->location, "unclosed multi line comment found!");
 					}
 
-					clear_buffer(lexer);
+					_clear_buffer(lexer);
 					return lasm_lexer_lex(lexer, token);
 				} break;
 			}

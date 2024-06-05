@@ -46,7 +46,7 @@ static const struct
  * 
  * @return int8_t
  */
-static int8_t get_utf8_size(const uint8_t c);
+static int8_t _get_utf8_size(const uint8_t c);
 
 uint32_t lasm_utf8_decode(const char_t** const string)
 {
@@ -61,7 +61,7 @@ uint32_t lasm_utf8_decode(const char_t** const string)
 		return cp;
 	}
 
-	int8_t size = get_utf8_size(**s);
+	int8_t size = _get_utf8_size(**s);
 
 	if (-1 == size)
 	{
@@ -137,7 +137,7 @@ utf8char_t lasm_utf8_get(FILE* const file)
 	}
 
 	buffer[0] = (char_t)c;
-	const int8_t size = get_utf8_size((uint8_t)c);
+	const int8_t size = _get_utf8_size((uint8_t)c);
 
 	if (size > (int8_t)lasm_utf8_max_size)
 	{
@@ -161,7 +161,7 @@ utf8char_t lasm_utf8_get(FILE* const file)
 	return lasm_utf8_decode(&ptr);
 }
 
-static int8_t get_utf8_size(const uint8_t c)
+static int8_t _get_utf8_size(const uint8_t c)
 {
 	const uint8_t count = (uint8_t)(
 		sizeof(g_sizes) / sizeof(g_sizes[0])

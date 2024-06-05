@@ -56,37 +56,33 @@ const char_t* lasm_ast_label_to_string(const lasm_ast_label_s* const label)
 	static char_t label_string_buffer[label_string_buffer_capacity + 1];
 	uint64_t written = 0;
 
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "[");
-
 	const lasm_ast_attr_s addr_attr = label->attrs[lasm_ast_attr_type_addr];
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "addr=");
+	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "[addr=");
 	if (addr_attr.inferred) written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "auto");
 	else written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%lu", addr_attr.as.addr.value);
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, ", ");
+	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", ", ");
 
 	const lasm_ast_attr_s align_attr = label->attrs[lasm_ast_attr_type_align];
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "align=");
+	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "align=");
 	if (align_attr.inferred) written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "auto");
 	else written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%lu", align_attr.as.align.value);
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, ", ");
+	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", ", ");
 
 	const lasm_ast_attr_s size_attr = label->attrs[lasm_ast_attr_type_size];
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "size=");
+	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "size=");
 	if (size_attr.inferred) written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "auto");
 	else written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%lu", size_attr.as.size.value);
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, ", ");
+	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", ", ");
 
 	const lasm_ast_attr_s perm_attr = label->attrs[lasm_ast_attr_type_perm];
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "perm=");
+	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "perm=");
 	if (perm_attr.inferred) written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "auto");
 	else written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", lasm_ast_perm_type_to_string(perm_attr.as.perm.value));
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, ",");
-
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "]\n");
+	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", ",]\n");
 
 	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s:\n", label->name);
-	for (uint64_t index = 0; index < label->body.count; ++index) written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "\t%s\n", lasm_token_to_string(lasm_tokens_vector_at((lasm_tokens_vector_s* const)&label->body, index)));
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "end");
+	for (uint64_t index = 0; index < label->body.count; ++index) written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "    %s\n", lasm_token_to_string(lasm_tokens_vector_at((lasm_tokens_vector_s* const)&label->body, index)));
+	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "end");
 
 	return label_string_buffer;
 }
@@ -96,12 +92,10 @@ lasm_parser_s lasm_parser_new(lasm_arena_s* const arena, const char_t* const fil
 	lasm_debug_assert(arena != NULL);
 	lasm_debug_assert(file_path != NULL);
 
-	const lasm_lexer_s lexer = lasm_lexer_new(arena, file_path);
-
 	return (lasm_parser_s)
 	{
 		.arena = arena,
-		.lexer = lexer,
+		.lexer = lasm_lexer_new(arena, file_path),
 	};
 }
 

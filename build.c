@@ -48,6 +48,7 @@ static void debug_flags(build_command_s* const command)
 static void release_flags(build_command_s* const command)
 {
 	build_vector_append(command, "-O3");
+	build_vector_append(command, "-DNDEBUG");
 	build_vector_append(command, "-o");
 	build_vector_append(command, "./build/release/"PROJECT_NAME);
 }
@@ -105,10 +106,19 @@ build_target(release, "build the project in release build configuration.")
 	return status;
 }
 
-build_target(run, "run the project in debug configuration.")
+build_target(run_debug, "run the project in debug configuration.")
 {
 	build_command_s command = {0};
 	build_command_append(&command, "./build/debug/"PROJECT_NAME, "build", "-a", "x64_86", "-f", "elf", "./examples/experiments.lasm");
+	const bool_t status = build_proc_run_sync(&command);
+	build_vector_drop(&command);
+	return status;
+}
+
+build_target(run_release, "run the project in release configuration.")
+{
+	build_command_s command = {0};
+	build_command_append(&command, "./build/release/"PROJECT_NAME, "build", "-a", "x64_86", "-f", "elf", "./examples/experiments.lasm");
 	const bool_t status = build_proc_run_sync(&command);
 	build_vector_drop(&command);
 	return status;
@@ -129,11 +139,12 @@ build_target(all, "run all targets one after the other.")
 }
 
 build_targets(
-	bind_target(clean  ),
-	bind_target(prep   ),
-	bind_target(debug  ),
-	bind_target(release),
-	bind_target(run    ),
-	bind_target(docs   ),
-	bind_target(all    ),
+	bind_target(clean      ),
+	bind_target(prep       ),
+	bind_target(debug      ),
+	bind_target(release    ),
+	bind_target(run_debug  ),
+	bind_target(run_release),
+	bind_target(docs       ),
+	bind_target(all        ),
 );
