@@ -21,6 +21,8 @@ void rl78s3_parser_parse_tokens(lasm_lexer_s* const lexer, lasm_bytes_vector_s* 
 
 	lasm_token_s token = lasm_token_new(lasm_token_type_none, lexer->location);
 
+	// note: https://llvm-gcc-renesas.com/pdf/r01us0015ej0220_rl78.pdf.
+
 	while (!lasm_lexer_should_stop(lasm_lexer_lex(lexer, &token)))
 	{
 		if (lasm_token_type_keyword_end == token.type) return;
