@@ -13,6 +13,7 @@
 #include "lasm/parser.h"
 #include "lasm/debug.h"
 #include "lasm/logger.h"
+#include "lasm/archs/x64_86_parser.h"
 
 #define log_parser_error(_location, _format, ...)                              \
 	do                                                                         \
@@ -84,7 +85,7 @@ const char_t* lasm_ast_label_to_string(const lasm_ast_label_s* const label)
 
 	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s:\n", label->name);
 	for (uint64_t index = 0; index < label->body.count; ++index) written += (uint64_t)snprintf(label_string_buffer + written,
-	label_string_buffer_capacity - written, "    %s\n", lasm_token_to_string(lasm_tokens_vector_at((lasm_tokens_vector_s* const)&label->body, index)));
+	label_string_buffer_capacity - written, "    0x%02X\n", *lasm_bytes_vector_at((lasm_bytes_vector_s* const)&label->body, index));
 	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "end");
 
 	return label_string_buffer;
@@ -490,14 +491,14 @@ static bool_t parse_label_body(lasm_parser_s* const parser, lasm_ast_label_s* co
 	lasm_debug_assert(parser != NULL);
 	lasm_debug_assert(label != NULL);
 
-	label->body = lasm_tokens_vector_new(parser->arena, 1);
-	lasm_token_s token = lasm_token_new(lasm_token_type_none, parser->lexer.location);
+	label->body = lasm_bytes_vector_new(parser->arena, 1);
 
 	switch (lasm_arch_type_from_string(parser->config->arch))
 	{
 		case lasm_arch_type_x64_86:
 		{
 			// todo: parse the x64_86 assembly!
+			x64_86_parser_parse_tokens(&parser->lexer, &label->body);
 		} break;
 
 		case lasm_arch_type_arn16:
@@ -509,12 +510,6 @@ static bool_t parse_label_body(lasm_parser_s* const parser, lasm_ast_label_s* co
 		{
 			lasm_debug_assert(0);
 		} break;
-	}
-
-	while (!lasm_lexer_should_stop(lasm_lexer_lex(&parser->lexer, &token)))
-	{
-		if (lasm_token_type_keyword_end == token.type) break;
-		lasm_tokens_vector_push(&label->body, token);
 	}
 
 	return true;

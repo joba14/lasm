@@ -115,6 +115,6 @@ lasm_token_s lasm_token_new(const lasm_token_type_e type, const lasm_location_s 
  */
 const char_t* lasm_token_to_string(const lasm_token_s* const token);
 
-lasm_define_vector_type(lasm_tokens_vector, lasm_token_s);
+lasm_define_vector_type(lasm_bytes_vector, uint8_t);
 
 #endif

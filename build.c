@@ -64,6 +64,7 @@ static void sources(build_command_s* const command)
 	build_vector_append(command, "./source/lasm/token.c");
 	build_vector_append(command, "./source/lasm/lexer.c");
 	build_vector_append(command, "./source/lasm/parser.c");
+	build_vector_append(command, "./source/lasm/archs/x64_86_parser.c");
 	build_vector_append(command, "./source/main.c");
 }
 

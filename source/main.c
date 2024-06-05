@@ -24,22 +24,16 @@ int32_t main(int32_t argc, const char_t** argv)
 	lasm_debug_assert(argv != NULL);
 
 	lasm_arena_s arena = lasm_arena_new();
-
 	lasm_config_s config = lasm_config_from_cli(&arena, &argc, &argv);
+	lasm_parser_s parser = lasm_parser_new(&arena, &config);
 
-	{  // note: compilation and building starts here:
-		lasm_parser_s parser = lasm_parser_new(&arena, &config);
-
-		lasm_ast_label_s label = {0};
-		while (lasm_parser_parse_label(&parser, &label))
-		{
-			lasm_logger_debug("\n%s\n", lasm_ast_label_to_string(&label));
-		}
-
-		lasm_parser_drop(&parser);
+	lasm_ast_label_s label = {0};
+	while (lasm_parser_parse_label(&parser, &label))
+	{
+		lasm_logger_debug("\n%s\n", lasm_ast_label_to_string(&label));
 	}
 
+	lasm_parser_drop(&parser);
 	lasm_arena_drop(&arena);
-
 	return 0;
 }

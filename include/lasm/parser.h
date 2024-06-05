@@ -76,7 +76,7 @@ typedef struct
 {
 	lasm_ast_attr_s attrs[lasm_ast_attr_types_count];
 	const char_t* name;
-	lasm_tokens_vector_s body;
+	lasm_bytes_vector_s body;
 } lasm_ast_label_s;
 
 const char_t* lasm_ast_label_to_string(const lasm_ast_label_s* const label);
