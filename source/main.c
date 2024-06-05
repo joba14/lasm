@@ -42,15 +42,39 @@ static const char_t* const g_usage_banner =
 	"notice:\n"
 	"    this executable is distributed under the \"lasm gplv1\" license.\n";
 
-static const char_t* _g_supported_archs[] =
+typedef enum
 {
-	"x64_86", "arn16",
+	lasm_arch_type_x64_86,
+	lasm_arch_type_arn16,
+	lasm_arch_types_count,
+	lasm_arch_type_none,
+} lasm_arch_type_e;
+
+typedef enum
+{
+	lasm_format_type_elf,
+	lasm_format_type_pe32plus,
+	lasm_format_types_count,
+	lasm_format_type_none,
+} lasm_format_type_e;
+
+static const char_t* _g_supported_archs[lasm_arch_types_count] =
+{
+	[lasm_arch_type_x64_86] = "x64_86",
+	[lasm_arch_type_arn16]  = "arn16" ,
 };
 
-static const char_t* _g_supported_formats[] =
+static const char_t* _g_supported_formats[lasm_format_types_count] =
 {
-	"elf", "pe32+",
+	[lasm_format_type_elf]      = "elf"  ,
+	[lasm_format_type_pe32plus] = "pe32+",
 };
+
+static lasm_arch_type_e _lasm_arch_type_from_string(const char_t* const arch_as_string);
+
+static lasm_format_type_e _lasm_format_type_from_string(const char_t* const format_as_string);
+
+const char_t* _get_file_name_from_path(const char_t* const path);
 
 static const char_t* _supported_archs_to_string(void);
 
@@ -60,7 +84,7 @@ static void _print_usage_banner(void);
 
 static const char_t* _shift_cli_args(int32_t* const argc, const char_t*** const argv);
 
-static bool_t _match_option(const char_t* const option, const char_t* const long_name, const char_t* const short_name);
+static bool_t _match_cli_option(const char_t* const option, const char_t* const long_name, const char_t* const short_name);
 
 static const char_t* _get_option_argument(const char_t* const option, int32_t* const argc, const char_t*** const argv);
 
@@ -109,23 +133,85 @@ int32_t main(int32_t argc, const char_t** argv)
 	return 0;
 }
 
+static lasm_arch_type_e _lasm_arch_type_from_string(const char_t* const arch_as_string)
+{
+	for (uint64_t index = 0; index < lasm_arch_types_count; ++index)
+	{
+		const char_t* arch = _g_supported_archs[index];
+		lasm_debug_assert(arch != NULL);
+
+		const uint64_t arch_length = lasm_common_strlen(arch);
+		lasm_debug_assert(arch_length > 0);
+
+		const uint64_t arch_as_string_length = lasm_common_strlen(arch_as_string);
+		lasm_debug_assert(arch_as_string_length > 0);
+
+		if ((arch_as_string_length == arch_length) && (lasm_common_strncmp(arch_as_string, arch, arch_as_string_length) == 0))
+		{
+			return index;
+		}
+	}
+
+	return lasm_arch_type_none;
+}
+
+static lasm_format_type_e _lasm_format_type_from_string(const char_t* const format_as_string)
+{
+	for (uint64_t index = 0; index < lasm_format_types_count; ++index)
+	{
+		const char_t* format = _g_supported_formats[index];
+		lasm_debug_assert(format != NULL);
+
+		const uint64_t format_length = lasm_common_strlen(format);
+		lasm_debug_assert(format_length > 0);
+
+		const uint64_t format_as_string_length = lasm_common_strlen(format_as_string);
+		lasm_debug_assert(format_as_string_length > 0);
+
+		if ((format_as_string_length == format_length) && (lasm_common_strncmp(format_as_string, format, format_as_string_length) == 0))
+		{
+			return index;
+		}
+	}
+
+	return lasm_format_type_none;
+}
+
+const char_t* _get_file_name_from_path(const char_t* const path)
+{
+	lasm_debug_assert(path != NULL);
+
+	const uint64_t path_length = lasm_common_strlen(path);
+	lasm_debug_assert(path_length > 0);
+
+	for (uint64_t offset = path_length; offset > 0; --offset)
+	{
+		const uint64_t index = offset - 1;
+
+		if (('\\' == path[index]) || ('/' == path[index]))
+		{
+			return path + offset;
+		}
+	}
+
+	return path;
+}
+
 static const char_t* _supported_archs_to_string(void)
 {
 	#define archs_list_string_buffer_capacity 512
 	static char_t archs_list_string_buffer[archs_list_string_buffer_capacity + 1];
-
 	uint64_t written = 0;
-	const uint64_t count = (uint64_t)(sizeof(_g_supported_archs) / sizeof(_g_supported_archs[0]));
 
-	for (uint64_t index = 0; index < count; ++index)
+	for (uint64_t index = 0; index < lasm_arch_types_count; ++index)
 	{
 		written += (uint64_t)snprintf(archs_list_string_buffer + written, archs_list_string_buffer_capacity - written, "%s", _g_supported_archs[index]);
 
-		if (index < (count - 1))
+		if (index < (lasm_arch_types_count - 1))
 		{
 			written += (uint64_t)snprintf(archs_list_string_buffer + written, archs_list_string_buffer_capacity - written, "%s", ", ");
 
-			if (index == (count - 2))
+			if (index == (lasm_arch_types_count - 2))
 			{
 				written += (uint64_t)snprintf(archs_list_string_buffer + written, archs_list_string_buffer_capacity - written, "%s", "and ");
 			}
@@ -139,19 +225,17 @@ static const char_t* _supported_formats_to_string(void)
 {
 	#define formats_list_string_buffer_capacity 512
 	static char_t formats_list_string_buffer[formats_list_string_buffer_capacity + 1];
-
 	uint64_t written = 0;
-	const uint64_t count = (uint64_t)(sizeof(_g_supported_formats) / sizeof(_g_supported_formats[0]));
 
-	for (uint64_t index = 0; index < count; ++index)
+	for (uint64_t index = 0; index < lasm_format_types_count; ++index)
 	{
 		written += (uint64_t)snprintf(formats_list_string_buffer + written, formats_list_string_buffer_capacity - written, "%s", _g_supported_formats[index]);
 
-		if (index < (count - 1))
+		if (index < (lasm_format_types_count - 1))
 		{
 			written += (uint64_t)snprintf(formats_list_string_buffer + written, formats_list_string_buffer_capacity - written, "%s", ", ");
 
-			if (index == (count - 2))
+			if (index == (lasm_format_types_count - 2))
 			{
 				written += (uint64_t)snprintf(formats_list_string_buffer + written, formats_list_string_buffer_capacity - written, "%s", "and ");
 			}
@@ -185,7 +269,7 @@ static const char_t* _shift_cli_args(int32_t* const argc, const char_t*** const 
 	return argument;
 }
 
-static bool_t _match_option(const char_t* const option, const char_t* const long_name, const char_t* const short_name)
+static bool_t _match_cli_option(const char_t* const option, const char_t* const long_name, const char_t* const short_name)
 {
 	lasm_debug_assert(option != NULL);
 	lasm_debug_assert(long_name != NULL);
@@ -224,6 +308,8 @@ static void _run_build_command(int32_t* const argc, const char_t*** const argv)
 	lasm_debug_assert(argc != NULL);
 	lasm_debug_assert(argv != NULL);
 
+	lasm_arena_s arena = lasm_arena_new();
+
 	const char_t* arch   = NULL;
 	const char_t* format = NULL;
 	const char_t* entry  = NULL;
@@ -233,9 +319,13 @@ static void _run_build_command(int32_t* const argc, const char_t*** const argv)
 	for (uint64_t index = 0; true; ++index)
 	{
 		const char_t* const option = _shift_cli_args(argc, argv);
-		if (NULL == option) { break; }
 
-		if (_match_option(option, "--arch", "-a"))
+		if (NULL == option)
+		{
+			break;
+		}
+
+		if (_match_cli_option(option, "--arch", "-a"))
 		{
 			if (arch != NULL)
 			{
@@ -248,7 +338,7 @@ static void _run_build_command(int32_t* const argc, const char_t*** const argv)
 			lasm_debug_assert(arch_as_string != NULL);
 			arch = arch_as_string;
 		}
-		else if (_match_option(option, "--format", "-f"))
+		else if (_match_cli_option(option, "--format", "-f"))
 		{
 			if (format != NULL)
 			{
@@ -261,7 +351,7 @@ static void _run_build_command(int32_t* const argc, const char_t*** const argv)
 			lasm_debug_assert(format_as_string != NULL);
 			format = format_as_string;
 		}
-		else if (_match_option(option, "--entry", "-e"))
+		else if (_match_cli_option(option, "--entry", "-e"))
 		{
 			if (entry != NULL)
 			{
@@ -274,7 +364,7 @@ static void _run_build_command(int32_t* const argc, const char_t*** const argv)
 			lasm_debug_assert(entry_as_string != NULL);
 			entry = entry_as_string;
 		}
-		else if (_match_option(option, "--output", "-o"))
+		else if (_match_cli_option(option, "--output", "-o"))
 		{
 			if (output != NULL)
 			{
@@ -302,35 +392,15 @@ static void _run_build_command(int32_t* const argc, const char_t*** const argv)
 
 	if (NULL == arch)
 	{
-		lasm_logger_error("no architecture was provided. supported architectures are: %s.", _supported_archs_to_string());
+		lasm_logger_error("no architecture was provided in the command line arguments in 'build' command. supported architectures are: %s.", _supported_archs_to_string());
 		_print_usage_banner();
 		lasm_common_exit(1);
 	}
 	else
 	{
-		bool_t is_arch_valid = false;
-
-		for (uint64_t index = 0; index < (uint64_t)(sizeof(_g_supported_archs) / sizeof(_g_supported_archs[0])); ++index)
+		if (lasm_arch_type_none == _lasm_arch_type_from_string(arch))
 		{
-			const char_t* supported_arch = _g_supported_archs[index];
-			lasm_debug_assert(supported_arch != NULL);
-
-			const uint64_t supported_arch_length = lasm_common_strlen(supported_arch);
-			lasm_debug_assert(supported_arch_length > 0);
-
-			const uint64_t arch_length = lasm_common_strlen(arch);
-			lasm_debug_assert(arch_length > 0);
-
-			if ((arch_length == supported_arch_length) && (lasm_common_strncmp(arch, supported_arch, arch_length) == 0))
-			{
-				is_arch_valid = true;
-				break;
-			}
-		}
-
-		if (!is_arch_valid)
-		{
-			lasm_logger_error("an invalid architecture was provided: %s supported architectures are: %s.", arch, _supported_archs_to_string());
+			lasm_logger_error("an invalid architecture was provided in the command line arguments in 'build' command: %s. supported architectures are: %s.", arch, _supported_archs_to_string());
 			_print_usage_banner();
 			lasm_common_exit(1);
 		}
@@ -338,35 +408,15 @@ static void _run_build_command(int32_t* const argc, const char_t*** const argv)
 
 	if (NULL == format)
 	{
-		lasm_logger_error("no format was provided. supported formats are: %s.", _supported_formats_to_string());
+		lasm_logger_error("no format was provided in the command line arguments in 'build' command. supported formats are: %s.", _supported_formats_to_string());
 		_print_usage_banner();
 		lasm_common_exit(1);
 	}
 	else
 	{
-		bool_t is_format_valid = false;
-
-		for (uint64_t index = 0; index < (uint64_t)(sizeof(_g_supported_formats) / sizeof(_g_supported_formats[0])); ++index)
+		if (lasm_format_type_none == _lasm_format_type_from_string(format))
 		{
-			const char_t* supported_format = _g_supported_formats[index];
-			lasm_debug_assert(supported_format != NULL);
-
-			const uint64_t supported_format_length = lasm_common_strlen(supported_format);
-			lasm_debug_assert(supported_format_length > 0);
-
-			const uint64_t format_length = lasm_common_strlen(format);
-			lasm_debug_assert(format_length > 0);
-
-			if ((format_length == supported_format_length) && (lasm_common_strncmp(format, supported_format, format_length) == 0))
-			{
-				is_format_valid = true;
-				break;
-			}
-		}
-
-		if (!is_format_valid)
-		{
-			lasm_logger_error("an invalid format was provided: %s supported formats are: %s.", arch, _supported_formats_to_string());
+			lasm_logger_error("an invalid format was provided in the command line arguments in 'build' command: %s. supported formats are: %s.", format, _supported_formats_to_string());
 			_print_usage_banner();
 			lasm_common_exit(1);
 		}
@@ -379,7 +429,22 @@ static void _run_build_command(int32_t* const argc, const char_t*** const argv)
 
 	if (NULL == output)
 	{
-		output = "a.out";
+		const char_t* const source_name = _get_file_name_from_path(source);
+		lasm_debug_assert(source_name != NULL);
+
+		const uint64_t source_name_length = lasm_common_strlen(source_name);
+		lasm_debug_assert(source_name_length > 0);
+
+		const uint64_t format_length = lasm_common_strlen(format);
+		lasm_debug_assert(format_length > 0);
+
+		char_t* const output_path = (char_t* const)lasm_arena_alloc(&arena, source_name_length + 1 + format_length);
+		lasm_debug_assert(output_path != NULL);
+
+		lasm_common_memcpy(output_path, source_name, source_name_length);
+		lasm_common_memcpy(output_path + source_name_length, ".", 1);
+		lasm_common_memcpy(output_path + source_name_length + 1, format, format_length);
+		output = output_path;
 	}
 
 	if (NULL == source)
@@ -390,16 +455,34 @@ static void _run_build_command(int32_t* const argc, const char_t*** const argv)
 	}
 
 	{  // note: compilation and building starts here:
-		lasm_arena_s arena = lasm_arena_new();
 		lasm_parser_s parser = lasm_parser_new(&arena, source);
 
 		lasm_ast_label_s* label = NULL;
 		while ((label = lasm_parser_parse_label(&parser)) != NULL)
 		{
 			lasm_logger_debug("\n%s\n", lasm_ast_label_to_string(label));
+
+			switch (_lasm_arch_type_from_string(arch))
+			{
+				case lasm_arch_type_x64_86:
+				{
+					// todo: parse the x64_86 assembly!
+				} break;
+
+				case lasm_arch_type_arn16:
+				{
+					// todo: parse the arn16 assembly!
+				} break;
+
+				default:
+				{
+					lasm_debug_assert(0);
+				} break;
+			}
 		}
 
 		lasm_parser_drop(&parser);
-		lasm_arena_drop(&arena);
 	}
+
+	lasm_arena_drop(&arena);
 }

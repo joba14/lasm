@@ -224,25 +224,25 @@ lasm_lexer_s lasm_lexer_new(lasm_arena_s* const arena, const char_t* const file_
 		{
 			case ENOENT:
 			{
-				lasm_logger_error("unable to open %s for reading -- file not found.", file_path);
+				lasm_logger_error("unable to open path %s for reading: file not found.", file_path);
 				lasm_common_exit(1);
 			} break;
 
 			case EACCES:
 			{
-				lasm_logger_error("unable to open %s for reading -- permission denied.", file_path);
+				lasm_logger_error("unable to open path %s for reading: permission denied.", file_path);
 				lasm_common_exit(1);
 			} break;
 
 			case ENAMETOOLONG:
 			{
-				lasm_logger_error("unable to open %s for reading -- path name exceeds the system-defined maximum length.", file_path);
+				lasm_logger_error("unable to open path %s for reading: path name exceeds the system-defined maximum length.", file_path);
 				lasm_common_exit(1);
 			} break;
 
 			default:
 			{
-				lasm_logger_error("unable to open %s for reading -- failed to stat.", file_path);
+				lasm_logger_error("unable to open path %s for reading: failed to stat.", file_path);
 				lasm_common_exit(1);
 			} break;
 		}
@@ -250,7 +250,7 @@ lasm_lexer_s lasm_lexer_new(lasm_arena_s* const arena, const char_t* const file_
 
 	if (S_ISDIR(stats.st_mode))
 	{
-		lasm_logger_error("unable to open %s for reading -- it is a directory.", file_path);
+		lasm_logger_error("unable to open path %s for reading: it is a directory.", file_path);
 		lasm_common_exit(1);
 	}
 
@@ -258,7 +258,7 @@ lasm_lexer_s lasm_lexer_new(lasm_arena_s* const arena, const char_t* const file_
 
 	if (NULL == file)
 	{
-		lasm_logger_error("unable to open %s for reading -- failed to open.", file_path);
+		lasm_logger_error("unable to open path %s for reading: failed to open.", file_path);
 		lasm_common_exit(1);
 	}
 

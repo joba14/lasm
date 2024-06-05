@@ -81,7 +81,8 @@ const char_t* lasm_ast_label_to_string(const lasm_ast_label_s* const label)
 	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", ",]\n");
 
 	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s:\n", label->name);
-	for (uint64_t index = 0; index < label->body.count; ++index) written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "    %s\n", lasm_token_to_string(lasm_tokens_vector_at((lasm_tokens_vector_s* const)&label->body, index)));
+	for (uint64_t index = 0; index < label->body.count; ++index) written += (uint64_t)snprintf(label_string_buffer + written,
+	label_string_buffer_capacity - written, "    %s\n", lasm_token_to_string(lasm_tokens_vector_at((lasm_tokens_vector_s* const)&label->body, index)));
 	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "end");
 
 	return label_string_buffer;
