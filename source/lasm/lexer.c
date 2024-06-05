@@ -210,39 +210,39 @@ static lasm_token_type_e _lex_single_line_string_literal_token(lasm_lexer_s* con
  */
 static lasm_token_type_e _lex_2_symbols_token(lasm_lexer_s* const lexer, lasm_token_s* const token, utf8char_t c);
 
-lasm_lexer_s lasm_lexer_new(lasm_arena_s* const arena, const char_t* const file_path)
+lasm_lexer_s lasm_lexer_new(lasm_arena_s* const arena, lasm_config_s* const config)
 {
 	lasm_debug_assert(arena != NULL);
-	lasm_debug_assert(file_path != NULL);
+	lasm_debug_assert(config != NULL);
 
 	typedef struct stat stats_s;
 	stats_s stats = {0};
 
-	if (stat(file_path, &stats) != 0)
+	if (stat(config->source, &stats) != 0)
 	{
 		switch (errno)
 		{
 			case ENOENT:
 			{
-				lasm_logger_error("unable to open path %s for reading: file not found.", file_path);
+				lasm_logger_error("unable to open path %s for reading: file not found.", config->source);
 				lasm_common_exit(1);
 			} break;
 
 			case EACCES:
 			{
-				lasm_logger_error("unable to open path %s for reading: permission denied.", file_path);
+				lasm_logger_error("unable to open path %s for reading: permission denied.", config->source);
 				lasm_common_exit(1);
 			} break;
 
 			case ENAMETOOLONG:
 			{
-				lasm_logger_error("unable to open path %s for reading: path name exceeds the system-defined maximum length.", file_path);
+				lasm_logger_error("unable to open path %s for reading: path name exceeds the system-defined maximum length.", config->source);
 				lasm_common_exit(1);
 			} break;
 
 			default:
 			{
-				lasm_logger_error("unable to open path %s for reading: failed to stat.", file_path);
+				lasm_logger_error("unable to open path %s for reading: failed to stat.", config->source);
 				lasm_common_exit(1);
 			} break;
 		}
@@ -250,15 +250,15 @@ lasm_lexer_s lasm_lexer_new(lasm_arena_s* const arena, const char_t* const file_
 
 	if (S_ISDIR(stats.st_mode))
 	{
-		lasm_logger_error("unable to open path %s for reading: it is a directory.", file_path);
+		lasm_logger_error("unable to open path %s for reading: it is a directory.", config->source);
 		lasm_common_exit(1);
 	}
 
-	FILE* const file = fopen(file_path, "rt");
+	FILE* const file = fopen(config->source, "rt");
 
 	if (NULL == file)
 	{
-		lasm_logger_error("unable to open path %s for reading: failed to open.", file_path);
+		lasm_logger_error("unable to open path %s for reading: failed to open.", config->source);
 		lasm_common_exit(1);
 	}
 
@@ -268,15 +268,16 @@ lasm_lexer_s lasm_lexer_new(lasm_arena_s* const arena, const char_t* const file_
 
 	return (lasm_lexer_s)
 	{
-		.arena = arena,
-		.file  = file,
-		.token = (lasm_token_s)
+		.arena  = arena,
+		.config = config,
+		.file   = file,
+		.token  = (lasm_token_s)
 		{
 			.type = lasm_token_type_none,
 		},
 		.location = (lasm_location_s)
 		{
-			.file   = file_path,
+			.file   = config->source,
 			.line   = 1,
 			.column = 0,
 		},

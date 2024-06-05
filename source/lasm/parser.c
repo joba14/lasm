@@ -31,6 +31,8 @@ static void parse_label_attr_size(lasm_parser_s* const parser, lasm_ast_label_s*
 
 static void parse_label_attr_perm(lasm_parser_s* const parser, lasm_ast_label_s* const label);
 
+static bool_t parse_label_body(lasm_parser_s* const parser, lasm_ast_label_s* const label);
+
 const char_t* lasm_ast_perm_type_to_string(const lasm_ast_perm_type_e type)
 {
 	switch (type)
@@ -88,15 +90,16 @@ const char_t* lasm_ast_label_to_string(const lasm_ast_label_s* const label)
 	return label_string_buffer;
 }
 
-lasm_parser_s lasm_parser_new(lasm_arena_s* const arena, const char_t* const file_path)
+lasm_parser_s lasm_parser_new(lasm_arena_s* const arena, lasm_config_s* const config)
 {
 	lasm_debug_assert(arena != NULL);
-	lasm_debug_assert(file_path != NULL);
+	lasm_debug_assert(config != NULL);
 
 	return (lasm_parser_s)
 	{
-		.arena = arena,
-		.lexer = lasm_lexer_new(arena, file_path),
+		.arena  = arena,
+		.config = config,
+		.lexer  = lasm_lexer_new(arena, config),
 	};
 }
 
@@ -106,16 +109,17 @@ void lasm_parser_drop(lasm_parser_s* const parser)
 	lasm_lexer_drop(&parser->lexer);
 }
 
-lasm_ast_label_s* lasm_parser_parse_label(lasm_parser_s* const parser)
+bool_t lasm_parser_parse_label(lasm_parser_s* const parser, lasm_ast_label_s* const label)
 {
 	lasm_debug_assert(parser != NULL);
+	lasm_debug_assert(label != NULL);
 
 	lasm_token_s token = lasm_token_new(lasm_token_type_none, parser->lexer.location);
 	(void)lasm_lexer_lex(&parser->lexer, &token);
 
-	if ((lasm_token_type_eof == token.type) || (lasm_token_type_none == token.type))
+	if (lasm_lexer_should_stop(token.type))
 	{
-		return NULL;
+		return false;
 	}
 
 	if (token.type != lasm_token_type_symbolic_left_bracket)
@@ -131,9 +135,6 @@ lasm_ast_label_s* lasm_parser_parse_label(lasm_parser_s* const parser)
 			lasm_token_type_to_string(token.type)
 		);
 	}
-
-	lasm_ast_label_s* const label = lasm_arena_alloc(parser->arena, sizeof(*label));
-	lasm_debug_assert(label != NULL);
 
 	parse_label_attr_addr(parser, label);
 	parse_label_attr_align(parser, label);
@@ -184,15 +185,7 @@ lasm_ast_label_s* lasm_parser_parse_label(lasm_parser_s* const parser)
 		);
 	}
 
-	label->body = lasm_tokens_vector_new(parser->arena, 1);
-
-	while (!lasm_lexer_should_stop(lasm_lexer_lex(&parser->lexer, &token)))
-	{
-		if (lasm_token_type_keyword_end == token.type) break;
-		lasm_tokens_vector_push(&label->body, token);
-	}
-
-	return label;
+	return parse_label_body(parser, label);
 }
 
 static void parse_label_attr_addr(lasm_parser_s* const parser, lasm_ast_label_s* const label)
@@ -490,4 +483,39 @@ static void parse_label_attr_perm(lasm_parser_s* const parser, lasm_ast_label_s*
 			lasm_token_type_to_string(token.type)
 		);
 	}
+}
+
+static bool_t parse_label_body(lasm_parser_s* const parser, lasm_ast_label_s* const label)
+{
+	lasm_debug_assert(parser != NULL);
+	lasm_debug_assert(label != NULL);
+
+	label->body = lasm_tokens_vector_new(parser->arena, 1);
+	lasm_token_s token = lasm_token_new(lasm_token_type_none, parser->lexer.location);
+
+	switch (lasm_arch_type_from_string(parser->config->arch))
+	{
+		case lasm_arch_type_x64_86:
+		{
+			// todo: parse the x64_86 assembly!
+		} break;
+
+		case lasm_arch_type_arn16:
+		{
+			// todo: parse the arn16 assembly!
+		} break;
+
+		default:
+		{
+			lasm_debug_assert(0);
+		} break;
+	}
+
+	while (!lasm_lexer_should_stop(lasm_lexer_lex(&parser->lexer, &token)))
+	{
+		if (lasm_token_type_keyword_end == token.type) break;
+		lasm_tokens_vector_push(&label->body, token);
+	}
+
+	return true;
 }

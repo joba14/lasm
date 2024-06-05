@@ -15,12 +15,15 @@
 
 #include "lasm/common.h"
 #include "lasm/arena.h"
+#include "lasm/config.h"
 #include "lasm/utf8.h"
 #include "lasm/token.h"
 
 typedef struct
 {
 	lasm_arena_s* arena;
+	lasm_config_s* config;
+
 	FILE* file;
 	lasm_location_s location;
 	lasm_token_s token;
@@ -42,7 +45,7 @@ typedef struct
  * 
  * @return lasm_lexer_s
  */
-lasm_lexer_s lasm_lexer_new(lasm_arena_s* const arena, const char_t* const file_path);
+lasm_lexer_s lasm_lexer_new(lasm_arena_s* const arena, lasm_config_s* const config);
 
 /**
  * @brief Drop the lexer and close the file that is bound to it.

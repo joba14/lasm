@@ -15,6 +15,7 @@
 
 #include "lasm/common.h"
 #include "lasm/arena.h"
+#include "lasm/config.h"
 #include "lasm/lexer.h"
 
 typedef enum
@@ -83,6 +84,7 @@ const char_t* lasm_ast_label_to_string(const lasm_ast_label_s* const label);
 typedef struct
 {
 	lasm_arena_s* arena;
+	lasm_config_s* config;
 	lasm_lexer_s lexer;
 } lasm_parser_s;
 
@@ -94,7 +96,7 @@ typedef struct
  * 
  * @return lasm_parser_s
  */
-lasm_parser_s lasm_parser_new(lasm_arena_s* const arena, const char_t* const file_path);
+lasm_parser_s lasm_parser_new(lasm_arena_s* const arena, lasm_config_s* const config);
 
 /**
  * @brief Drop the parser and close the file that is bound to it.
@@ -103,6 +105,6 @@ lasm_parser_s lasm_parser_new(lasm_arena_s* const arena, const char_t* const fil
  */
 void lasm_parser_drop(lasm_parser_s* const parser);
 
-lasm_ast_label_s* lasm_parser_parse_label(lasm_parser_s* const parser);
+bool_t lasm_parser_parse_label(lasm_parser_s* const parser, lasm_ast_label_s* const label);
 
 #endif
