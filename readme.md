@@ -242,30 +242,6 @@ If you have an executable of the assembler (doesnloaded or built from scratch) a
 ```sh
 > lasm help
 ```
-This should print out the usage banner:
-```sh
-usage: ./lasm <command>
-
-commands:
-    build [options] <source.lasm>       build the project with provided source file.
-        required:
-            -a, --arch <name>           set the target architecture for the executable. supported architectures
-                                        are: rl78s3.
-            -f, --format <name>         set the target format for the executable. supported formats are:
-                                        elf, and pe32+.
-            <source.lasm>               source file to build.
-        optional:
-            -e, --entry <name>          set the entry name symbol for the executable. defaults to the
-                                        name 'main'.
-            -o, --output <path>         set the output path for the executable. defaults to the name of
-                                        provided source file with extension removed if not provided.
-
-    help                                print this help message banner.
-    version                             print the version of this executable.
-
-notice:
-    this executable is distributed under the "lasm gplv1" license.
-```
 
 To check the version of the assembler, run the following command:
 ```sh

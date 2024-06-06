@@ -18,7 +18,7 @@
 
 typedef enum
 {
-	lasm_arch_type_rl78s3,
+	lasm_arch_type_z80,
 	lasm_arch_types_count,
 	lasm_arch_type_none,
 } lasm_arch_type_e;

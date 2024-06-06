@@ -1,6 +1,6 @@
 
 /**
- * @file x64_86_parser.c
+ * @file z80_parser.c
  * 
  * @copyright This file is a part of the "lasm" project and is distributed, and
  * licensed under "lasm gplv1" license.
@@ -10,11 +10,11 @@
  * @date 2024-06-05
  */
 
-#include "lasm/archs/rl78s3_parser.h"
+#include "lasm/archs/z80_parser.h"
 #include "lasm/debug.h"
 #include "lasm/logger.h"
 
-void rl78s3_parser_parse_tokens(lasm_lexer_s* const lexer, lasm_labels_vector_s* const labels, lasm_ast_label_s* const label)
+void z80_parser_parse_tokens(lasm_lexer_s* const lexer, lasm_labels_vector_s* const labels, lasm_ast_label_s* const label)
 {
 	lasm_debug_assert(lexer != NULL);
 	lasm_debug_assert(labels != NULL);

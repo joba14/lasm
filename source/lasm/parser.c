@@ -13,7 +13,7 @@
 #include "lasm/parser.h"
 #include "lasm/debug.h"
 #include "lasm/logger.h"
-#include "lasm/archs/rl78s3_parser.h"
+#include "lasm/archs/z80_parser.h"
 
 #define _log_parser_error(_location, _format, ...)                             \
 	do                                                                         \
@@ -474,10 +474,10 @@ static void _parse_label_body(lasm_parser_s* const parser, lasm_ast_label_s* con
 
 	switch (lasm_arch_type_from_string(parser->config->arch))
 	{
-		case lasm_arch_type_rl78s3:
+		case lasm_arch_type_z80:
 		{
-			// todo: parse the rl78s3 assembly!
-			rl78s3_parser_parse_tokens(&parser->lexer, &parser->labels, label);
+			// todo: parse the z80 assembly!
+			z80_parser_parse_tokens(&parser->lexer, &parser->labels, label);
 		} break;
 
 		default:

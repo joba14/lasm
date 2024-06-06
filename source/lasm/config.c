@@ -44,7 +44,7 @@ static const char_t* const g_usage_banner =
 
 static const char_t* _g_supported_archs[lasm_arch_types_count] =
 {
-	[lasm_arch_type_rl78s3] = "rl78s3",
+	[lasm_arch_type_z80] = "z80",
 };
 
 static const char_t* _g_supported_formats[lasm_format_types_count] =
