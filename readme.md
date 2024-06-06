@@ -158,6 +158,7 @@ end
 [addr=STACK_ADDRESS, align=2, size=STACK_SIZE, perm=rw]
 stack:
 end
+```
 
 [(to the top)](#lasm)
 
