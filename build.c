@@ -63,6 +63,7 @@ static void sources(build_command_s* const command)
 	build_vector_append(command, "./source/lasm/utf8.c");
 	build_vector_append(command, "./source/lasm/token.c");
 	build_vector_append(command, "./source/lasm/lexer.c");
+	build_vector_append(command, "./source/lasm/ast.c");
 	build_vector_append(command, "./source/lasm/parser.c");
 	build_vector_append(command, "./source/lasm/archs/rl78s3_parser.c");
 	build_vector_append(command, "./source/main.c");

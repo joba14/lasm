@@ -15,7 +15,7 @@
 #include "lasm/logger.h"
 #include "lasm/archs/rl78s3_parser.h"
 
-#define log_parser_error(_location, _format, ...)                              \
+#define _log_parser_error(_location, _format, ...)                             \
 	do                                                                         \
 	{                                                                          \
 		(void)fprintf(stderr, "%s:%lu:%lu: ",                                  \
@@ -24,72 +24,17 @@
 		lasm_common_exit(1);                                                   \
 	} while (0)
 
-static void parse_label_attr_addr(lasm_parser_s* const parser, lasm_ast_label_s* const label);
+static void _parse_label_attr_addr(lasm_parser_s* const parser, lasm_ast_label_s* const label);
 
-static void parse_label_attr_align(lasm_parser_s* const parser, lasm_ast_label_s* const label);
+static void _parse_label_attr_align(lasm_parser_s* const parser, lasm_ast_label_s* const label);
 
-static void parse_label_attr_size(lasm_parser_s* const parser, lasm_ast_label_s* const label);
+static void _parse_label_attr_size(lasm_parser_s* const parser, lasm_ast_label_s* const label);
 
-static void parse_label_attr_perm(lasm_parser_s* const parser, lasm_ast_label_s* const label);
+static void _parse_label_attr_perm(lasm_parser_s* const parser, lasm_ast_label_s* const label);
 
-static bool_t parse_label_body(lasm_parser_s* const parser, lasm_ast_label_s* const label);
+static bool_t _parse_label_header(lasm_parser_s* const parser, lasm_ast_label_s* const label);
 
-const char_t* lasm_ast_perm_type_to_string(const lasm_ast_perm_type_e type)
-{
-	switch (type)
-	{
-		case lasm_ast_perm_type_r:   { return "r";   } break;
-		case lasm_ast_perm_type_rw:  { return "rw";  } break;
-		case lasm_ast_perm_type_rx:  { return "rx";  } break;
-		case lasm_ast_perm_type_rwx: { return "rwx"; } break;
-
-		default:
-		{
-			lasm_debug_assert(0);  // note: sanity check for developers.
-			return NULL;
-		} break;
-	}
-}
-
-const char_t* lasm_ast_label_to_string(const lasm_ast_label_s* const label)
-{
-	lasm_debug_assert(label != NULL);
-
-	#define label_string_buffer_capacity 4096
-	static char_t label_string_buffer[label_string_buffer_capacity + 1];
-	uint64_t written = 0;
-
-	const lasm_ast_attr_s addr_attr = label->attrs[lasm_ast_attr_type_addr];
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "[addr=");
-	if (addr_attr.inferred) written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "auto");
-	else written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%lu", addr_attr.as.addr.value);
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", ", ");
-
-	const lasm_ast_attr_s align_attr = label->attrs[lasm_ast_attr_type_align];
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "align=");
-	if (align_attr.inferred) written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "auto");
-	else written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%lu", align_attr.as.align.value);
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", ", ");
-
-	const lasm_ast_attr_s size_attr = label->attrs[lasm_ast_attr_type_size];
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "size=");
-	if (size_attr.inferred) written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "auto");
-	else written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%lu", size_attr.as.size.value);
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", ", ");
-
-	const lasm_ast_attr_s perm_attr = label->attrs[lasm_ast_attr_type_perm];
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "perm=");
-	if (perm_attr.inferred) written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "auto");
-	else written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", lasm_ast_perm_type_to_string(perm_attr.as.perm.value));
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", ",]\n");
-
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s:\n", label->name);
-	for (uint64_t index = 0; index < label->body.count; ++index) written += (uint64_t)snprintf(label_string_buffer + written,
-	label_string_buffer_capacity - written, "    0x%02X\n", *lasm_bytes_vector_at((lasm_bytes_vector_s* const)&label->body, index));
-	written += (uint64_t)snprintf(label_string_buffer + written, label_string_buffer_capacity - written, "%s", "end");
-
-	return label_string_buffer;
-}
+static void _parse_label_body(lasm_parser_s* const parser, lasm_ast_label_s* const label);
 
 lasm_parser_s lasm_parser_new(lasm_arena_s* const arena, lasm_config_s* const config)
 {
@@ -110,86 +55,36 @@ void lasm_parser_drop(lasm_parser_s* const parser)
 	lasm_lexer_drop(&parser->lexer);
 }
 
-bool_t lasm_parser_parse_label(lasm_parser_s* const parser, lasm_ast_label_s* const label)
+lasm_labels_vector_s lasm_parser_shallow_parse(lasm_parser_s* const parser)
 {
 	lasm_debug_assert(parser != NULL);
-	lasm_debug_assert(label != NULL);
 
-	lasm_token_s token = lasm_token_new(lasm_token_type_none, parser->lexer.location);
-	(void)lasm_lexer_lex(&parser->lexer, &token);
+	lasm_labels_vector_s labels = lasm_labels_vector_new(parser->arena, 1);
+	lasm_ast_label_s label = {0};
 
-	if (lasm_lexer_should_stop(token.type))
+	while (_parse_label_header(parser, &label))
 	{
-		return false;
+		lasm_labels_vector_push(&labels, label);
+		lasm_logger_debug("shallow-parse\n%s\n", lasm_ast_label_to_string(&label));
 	}
 
-	if (token.type != lasm_token_type_symbolic_left_bracket)
-	{
-		log_parser_error(token.location,
-			"expected a symbolic token '[', but found '%s' token. all global definitions must be labels which start\n"
-			"with the attributes list. follow the example below:\n"
-			"    " lasm_red "v~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
-			"    " lasm_red "[" lasm_reset "addr=<value>, align=<value>, size=<value>, perm=<value>]\n"
-			"    "          "example:\n"
-			"    "          "    ; ... \n"
-			"    "          "end\n",
-			lasm_token_type_to_string(token.type)
-		);
-	}
-
-	parse_label_attr_addr(parser, label);
-	parse_label_attr_align(parser, label);
-	parse_label_attr_size(parser, label);
-	parse_label_attr_perm(parser, label);
-
-	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_right_bracket)
-	{
-		log_parser_error(token.location,
-			"expected a symbolic token ']' after the attributes list, but found '%s' token. an attributes list must be close\n"
-			"with ']' symbolic token. follow the example below:\n"
-			"    " lasm_red "                                             ~~~~~~~~~~~v" lasm_reset "\n"
-			"    [addr=<value>, align=<value>, size=<value>, perm=<value>" lasm_red "]" lasm_reset "\n"
-			"    "          "example:\n"
-			"    "          "    ; ... \n"
-			"    "          "end\n",
-			lasm_token_type_to_string(token.type)
-		);
-	}
-
-	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_ident)
-	{
-		log_parser_error(token.location,
-			"expected an identifier token after attributes list for the label, but found '%s' token. a label name must follow\n"
-			"the attributes list. follow the example below:\n"
-			lasm_red " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
-			lasm_red "|  " lasm_reset " [addr=<value>, align=<value>, size=<value>, perm=<value>]\n"
-			lasm_red " ~> example" lasm_reset ":\n"
-			"    "          "    ; ... \n"
-			"    "          "end\n",
-			lasm_token_type_to_string(token.type)
-		);
-	}
-
-	label->name = token.as.ident.data;
-
-	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_colon)
-	{
-		log_parser_error(token.location,
-			"expected a ':' symbolic token after the label's identifier token, but found '%s' token. a ':' symbolic token must\n"
-			"follow the label's identifier/name token. follow the example below:\n"
-			"                                                                  " lasm_red "|" lasm_reset "\n"
-			"    [addr=<value>, align=<value>, size=<value>, perm=<value>]     " lasm_red "|" lasm_reset "\n"
-			"    "          "example" lasm_red ": <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
-			"    "          "    ; ... \n"
-			"    "          "end\n",
-			lasm_token_type_to_string(token.type)
-		);
-	}
-
-	return parse_label_body(parser, label);
+	return labels;
 }
 
-static void parse_label_attr_addr(lasm_parser_s* const parser, lasm_ast_label_s* const label)
+void lasm_parser_deep_parse(lasm_parser_s* const parser, lasm_labels_vector_s* const labels)
+{
+	lasm_debug_assert(parser != NULL);
+	lasm_debug_assert(labels != NULL);
+
+	for (uint64_t index = 0; index < labels->count; ++index)
+	{
+		lasm_ast_label_s* const label = lasm_labels_vector_at(labels, index);
+		_parse_label_body(parser, label);
+		lasm_logger_debug("deep-parse\n%s\n", lasm_ast_label_to_string(label));
+	}
+}
+
+static void _parse_label_attr_addr(lasm_parser_s* const parser, lasm_ast_label_s* const label)
 {
 	lasm_debug_assert(parser != NULL);
 	lasm_debug_assert(label != NULL);
@@ -198,7 +93,7 @@ static void parse_label_attr_addr(lasm_parser_s* const parser, lasm_ast_label_s*
 
 	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_keyword_addr)
 	{
-		log_parser_error(token.location,
+		_log_parser_error(token.location,
 			"expected a 'addr' keyword after symbolic token '[', but found '%s' token. the attributes list have a\n"
 			"specific order that must be followed. follow the example below:\n"
 			"    " lasm_red " v~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
@@ -212,7 +107,7 @@ static void parse_label_attr_addr(lasm_parser_s* const parser, lasm_ast_label_s*
 
 	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_equal)
 	{
-		log_parser_error(token.location,
+		_log_parser_error(token.location,
 			"expected a '=' symbol token after 'addr' keyword, but found '%s' token. each attribute in the list of\n"
 			"attributes must have a value assigned to it. follow the example below:\n"
 			"    " lasm_red "     v~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
@@ -227,7 +122,7 @@ static void parse_label_attr_addr(lasm_parser_s* const parser, lasm_ast_label_s*
 	(void)lasm_lexer_lex(&parser->lexer, &token);
 	if ((token.type != lasm_token_type_keyword_auto) && (token.type != lasm_token_type_literal_uval))
 	{
-		log_parser_error(token.location,
+		_log_parser_error(token.location,
 			"expected an 'auto' keyword or a numeric value for the 'addr' attribute, but found '%s' token.",
 			lasm_token_type_to_string(token.type)
 		);
@@ -245,7 +140,7 @@ static void parse_label_attr_addr(lasm_parser_s* const parser, lasm_ast_label_s*
 
 	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_comma)
 	{
-		log_parser_error(token.location,
+		_log_parser_error(token.location,
 			"expected a ',' symbolic token after the 'addr' attribute's value, but found '%s' token.\n"
 			"attributes must have a trailing ',' after their values. follow the example below:\n"
 			"    " lasm_red "             v~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
@@ -258,7 +153,7 @@ static void parse_label_attr_addr(lasm_parser_s* const parser, lasm_ast_label_s*
 	}
 }
 
-static void parse_label_attr_align(lasm_parser_s* const parser, lasm_ast_label_s* const label)
+static void _parse_label_attr_align(lasm_parser_s* const parser, lasm_ast_label_s* const label)
 {
 	lasm_debug_assert(parser != NULL);
 	lasm_debug_assert(label != NULL);
@@ -267,7 +162,7 @@ static void parse_label_attr_align(lasm_parser_s* const parser, lasm_ast_label_s
 
 	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_keyword_align)
 	{
-		log_parser_error(token.location,
+		_log_parser_error(token.location,
 			"expected a 'align' keyword as the second attribute, but found '%s' token. the attributes list have a\n"
 			"specific order that must be followed. follow the example below:\n"
 			"    " lasm_red "               v~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
@@ -281,7 +176,7 @@ static void parse_label_attr_align(lasm_parser_s* const parser, lasm_ast_label_s
 
 	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_equal)
 	{
-		log_parser_error(token.location,
+		_log_parser_error(token.location,
 			"expected a '=' symbol token after 'align' keyword, but found '%s' token. each attribute in the list of\n"
 			"attributes must have a value assigned to it. follow the example below:\n"
 			"    " lasm_red "          v~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
@@ -296,7 +191,7 @@ static void parse_label_attr_align(lasm_parser_s* const parser, lasm_ast_label_s
 	(void)lasm_lexer_lex(&parser->lexer, &token);
 	if ((token.type != lasm_token_type_keyword_auto) && (token.type != lasm_token_type_literal_uval))
 	{
-		log_parser_error(token.location,
+		_log_parser_error(token.location,
 			"expected an 'auto' keyword or a numeric value for the 'align' attribute, but found '%s' token.",
 			lasm_token_type_to_string(token.type)
 		);
@@ -306,7 +201,7 @@ static void parse_label_attr_align(lasm_parser_s* const parser, lasm_ast_label_s
 	{
 		if (token.as.uval > 8)
 		{
-			log_parser_error(token.location,
+			_log_parser_error(token.location,
 				"align attribute value cannot exceed 8, but found value %lu specified for align attribute.",
 				token.as.uval
 			);
@@ -325,7 +220,7 @@ static void parse_label_attr_align(lasm_parser_s* const parser, lasm_ast_label_s
 
 	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_comma)
 	{
-		log_parser_error(token.location,
+		_log_parser_error(token.location,
 			"expected a ',' symbolic token after the 'align' attribute's value, but found '%s' token.\n"
 			"attributes must have a trailing ',' after their values. follow the example below:\n"
 			"    " lasm_red "                            v~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
@@ -338,7 +233,7 @@ static void parse_label_attr_align(lasm_parser_s* const parser, lasm_ast_label_s
 	}
 }
 
-static void parse_label_attr_size(lasm_parser_s* const parser, lasm_ast_label_s* const label)
+static void _parse_label_attr_size(lasm_parser_s* const parser, lasm_ast_label_s* const label)
 {
 	lasm_debug_assert(parser != NULL);
 	lasm_debug_assert(label != NULL);
@@ -347,7 +242,7 @@ static void parse_label_attr_size(lasm_parser_s* const parser, lasm_ast_label_s*
 
 	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_keyword_size)
 	{
-		log_parser_error(token.location,
+		_log_parser_error(token.location,
 			"expected a 'size' keyword as the third attribute, but found '%s' token. the attributes list have a\n"
 			"specific order that must be followed. follow the example below:\n"
 			"    " lasm_red "                              v~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
@@ -361,7 +256,7 @@ static void parse_label_attr_size(lasm_parser_s* const parser, lasm_ast_label_s*
 
 	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_equal)
 	{
-		log_parser_error(token.location,
+		_log_parser_error(token.location,
 			"expected a '=' symbol token after 'size' keyword, but found '%s' token. each attribute in the list of\n"
 			"attributes must have a value assigned to it. follow the example below:\n"
 			"    " lasm_red "                                  v~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
@@ -376,7 +271,7 @@ static void parse_label_attr_size(lasm_parser_s* const parser, lasm_ast_label_s*
 	(void)lasm_lexer_lex(&parser->lexer, &token);
 	if ((token.type != lasm_token_type_keyword_auto) && (token.type != lasm_token_type_literal_uval))
 	{
-		log_parser_error(token.location,
+		_log_parser_error(token.location,
 			"expected an 'auto' keyword or a numeric value for the 'size' attribute, but found '%s' token.",
 			lasm_token_type_to_string(token.type)
 		);
@@ -394,7 +289,7 @@ static void parse_label_attr_size(lasm_parser_s* const parser, lasm_ast_label_s*
 
 	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_comma)
 	{
-		log_parser_error(token.location,
+		_log_parser_error(token.location,
 			"expected a ',' symbolic token after the 'size' attribute's value, but found '%s' token.\n"
 			"attributes must have a trailing ',' after their values. follow the example below:\n"
 			"    " lasm_red "                                          v~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
@@ -407,7 +302,7 @@ static void parse_label_attr_size(lasm_parser_s* const parser, lasm_ast_label_s*
 	}
 }
 
-static void parse_label_attr_perm(lasm_parser_s* const parser, lasm_ast_label_s* const label)
+static void _parse_label_attr_perm(lasm_parser_s* const parser, lasm_ast_label_s* const label)
 {
 	lasm_debug_assert(parser != NULL);
 	lasm_debug_assert(label != NULL);
@@ -416,7 +311,7 @@ static void parse_label_attr_perm(lasm_parser_s* const parser, lasm_ast_label_s*
 
 	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_keyword_perm)
 	{
-		log_parser_error(token.location,
+		_log_parser_error(token.location,
 			"expected a 'perm' keyword as the third attribute, but found '%s' token. the attributes list have a\n"
 			"specific order that must be followed. follow the example below:\n"
 			"    " lasm_red "                                            v~~~~~~~~~~~~~~" lasm_reset "\n"
@@ -430,7 +325,7 @@ static void parse_label_attr_perm(lasm_parser_s* const parser, lasm_ast_label_s*
 
 	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_equal)
 	{
-		log_parser_error(token.location,
+		_log_parser_error(token.location,
 			"expected a '=' symbol token after 'perm' keyword, but found '%s' token. each attribute in the list of\n"
 			"attributes must have a value assigned to it. follow the example below:\n"
 			"    " lasm_red "                                                v~~~~~~~~~~~~~~~~~" lasm_reset "\n"
@@ -454,7 +349,7 @@ static void parse_label_attr_perm(lasm_parser_s* const parser, lasm_ast_label_s*
 
 		default:
 		{
-			log_parser_error(token.location,
+			_log_parser_error(token.location,
 				"expected an 'auto' keyword or any of the 'r', 'rw', 'rx', or 'rwx' keywords for the 'perm' attribute, but found '%s' token.",
 				lasm_token_type_to_string(token.type)
 			);
@@ -473,7 +368,7 @@ static void parse_label_attr_perm(lasm_parser_s* const parser, lasm_ast_label_s*
 
 	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_comma)
 	{
-		log_parser_error(token.location,
+		_log_parser_error(token.location,
 			"expected a ',' symbolic token after the 'perm' attribute's value, but found '%s' token.\n"
 			"attributes must have a trailing ',' after their values. follow the example below:\n"
 			"    " lasm_red "                                                        v~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
@@ -486,7 +381,94 @@ static void parse_label_attr_perm(lasm_parser_s* const parser, lasm_ast_label_s*
 	}
 }
 
-static bool_t parse_label_body(lasm_parser_s* const parser, lasm_ast_label_s* const label)
+static bool_t _parse_label_header(lasm_parser_s* const parser, lasm_ast_label_s* const label)
+{
+	lasm_debug_assert(parser != NULL);
+	lasm_debug_assert(label != NULL);
+
+	lasm_token_s token = lasm_token_new(lasm_token_type_none, parser->lexer.location);
+	(void)lasm_lexer_lex(&parser->lexer, &token);
+
+	if (lasm_lexer_should_stop(token.type))
+	{
+		return false;
+	}
+
+	if (token.type != lasm_token_type_symbolic_left_bracket)
+	{
+		_log_parser_error(token.location,
+			"expected a symbolic token '[', but found '%s' token. all global definitions must be labels which start\n"
+			"with the attributes list. follow the example below:\n"
+			"    " lasm_red "v~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
+			"    " lasm_red "[" lasm_reset "addr=<value>, align=<value>, size=<value>, perm=<value>]\n"
+			"    "          "example:\n"
+			"    "          "    ; ... \n"
+			"    "          "end\n",
+			lasm_token_type_to_string(token.type)
+		);
+	}
+
+	_parse_label_attr_addr(parser, label);
+	_parse_label_attr_align(parser, label);
+	_parse_label_attr_size(parser, label);
+	_parse_label_attr_perm(parser, label);
+
+	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_right_bracket)
+	{
+		_log_parser_error(token.location,
+			"expected a symbolic token ']' after the attributes list, but found '%s' token. an attributes list must be close\n"
+			"with ']' symbolic token. follow the example below:\n"
+			"    " lasm_red "                                             ~~~~~~~~~~~v" lasm_reset "\n"
+			"    [addr=<value>, align=<value>, size=<value>, perm=<value>" lasm_red "]" lasm_reset "\n"
+			"    "          "example:\n"
+			"    "          "    ; ... \n"
+			"    "          "end\n",
+			lasm_token_type_to_string(token.type)
+		);
+	}
+
+	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_ident)
+	{
+		_log_parser_error(token.location,
+			"expected an identifier token after attributes list for the label, but found '%s' token. a label name must follow\n"
+			"the attributes list. follow the example below:\n"
+			lasm_red " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
+			lasm_red "|  " lasm_reset " [addr=<value>, align=<value>, size=<value>, perm=<value>]\n"
+			lasm_red " ~> example" lasm_reset ":\n"
+			"    "          "    ; ... \n"
+			"    "          "end\n",
+			lasm_token_type_to_string(token.type)
+		);
+	}
+
+	label->name = token.as.ident.data;
+
+	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_colon)
+	{
+		_log_parser_error(token.location,
+			"expected a ':' symbolic token after the label's identifier token, but found '%s' token. a ':' symbolic token must\n"
+			"follow the label's identifier/name token. follow the example below:\n"
+			"                                                                  " lasm_red "|" lasm_reset "\n"
+			"    [addr=<value>, align=<value>, size=<value>, perm=<value>]     " lasm_red "|" lasm_reset "\n"
+			"    "          "example" lasm_red ": <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
+			"    "          "    ; ... \n"
+			"    "          "end\n",
+			lasm_token_type_to_string(token.type)
+		);
+	}
+
+	label->body_tokens = lasm_tokens_vector_new(parser->arena, 1);
+
+	while (!lasm_lexer_should_stop(lasm_lexer_lex(&parser->lexer, &token)))
+	{
+		if (lasm_token_type_keyword_end == token.type) break;
+		lasm_tokens_vector_push(&label->body_tokens, token);
+	}
+
+	return true;
+}
+
+static void _parse_label_body(lasm_parser_s* const parser, lasm_ast_label_s* const label)
 {
 	lasm_debug_assert(parser != NULL);
 	lasm_debug_assert(label != NULL);
@@ -498,7 +480,7 @@ static bool_t parse_label_body(lasm_parser_s* const parser, lasm_ast_label_s* co
 		case lasm_arch_type_rl78s3:
 		{
 			// todo: parse the rl78s3 assembly!
-			rl78s3_parser_parse_tokens(&parser->lexer, &label->body);
+			rl78s3_parser_parse_tokens(&parser->lexer, label);
 		} break;
 
 		default:
@@ -506,6 +488,4 @@ static bool_t parse_label_body(lasm_parser_s* const parser, lasm_ast_label_s* co
 			lasm_debug_assert(0);
 		} break;
 	}
-
-	return true;
 }

@@ -17,69 +17,7 @@
 #include "lasm/arena.h"
 #include "lasm/config.h"
 #include "lasm/lexer.h"
-
-typedef enum
-{
-	lasm_ast_attr_type_addr,
-	lasm_ast_attr_type_align,
-	lasm_ast_attr_type_size,
-	lasm_ast_attr_type_perm,
-	lasm_ast_attr_types_count,
-} lasm_ast_attr_type_e;
-
-typedef struct
-{
-	uint64_t value;
-} lasm_ast_attr_addr_s;
-
-typedef struct
-{
-	uint64_t value;
-} lasm_ast_attr_align_s;
-
-typedef struct
-{
-	uint64_t value;
-} lasm_ast_attr_size_s;
-
-typedef enum
-{
-	lasm_ast_perm_type_r,
-	lasm_ast_perm_type_rw,
-	lasm_ast_perm_type_rx,
-	lasm_ast_perm_type_rwx,
-	lasm_ast_perm_type_none,
-} lasm_ast_perm_type_e;
-
-const char_t* lasm_ast_perm_type_to_string(const lasm_ast_perm_type_e type);
-
-typedef struct
-{
-	lasm_ast_perm_type_e value;
-} lasm_ast_attr_perm_s;
-
-typedef struct
-{
-	lasm_ast_attr_type_e type;
-	bool_t inferred;
-
-	union
-	{
-		lasm_ast_attr_addr_s  addr;
-		lasm_ast_attr_align_s align;
-		lasm_ast_attr_size_s  size;
-		lasm_ast_attr_perm_s  perm;
-	} as;
-} lasm_ast_attr_s;
-
-typedef struct
-{
-	lasm_ast_attr_s attrs[lasm_ast_attr_types_count];
-	const char_t* name;
-	lasm_bytes_vector_s body;
-} lasm_ast_label_s;
-
-const char_t* lasm_ast_label_to_string(const lasm_ast_label_s* const label);
+#include "lasm/ast.h"
 
 typedef struct
 {
@@ -105,6 +43,8 @@ lasm_parser_s lasm_parser_new(lasm_arena_s* const arena, lasm_config_s* const co
  */
 void lasm_parser_drop(lasm_parser_s* const parser);
 
-bool_t lasm_parser_parse_label(lasm_parser_s* const parser, lasm_ast_label_s* const label);
+lasm_labels_vector_s lasm_parser_shallow_parse(lasm_parser_s* const parser);
+
+void lasm_parser_deep_parse(lasm_parser_s* const parser, lasm_labels_vector_s* const labels);
 
 #endif

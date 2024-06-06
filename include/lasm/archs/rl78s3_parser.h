@@ -15,7 +15,8 @@
 
 #include "lasm/common.h"
 #include "lasm/lexer.h"
+#include "lasm/ast.h"
 
-void rl78s3_parser_parse_tokens(lasm_lexer_s* const lexer, lasm_bytes_vector_s* const body);
+void rl78s3_parser_parse_tokens(lasm_lexer_s* const lexer, lasm_ast_label_s* const label);
 
 #endif

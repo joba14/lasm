@@ -143,4 +143,4 @@ const char_t* lasm_token_to_string(const lasm_token_s* const token)
 	return token_string_buffer;
 }
 
-lasm_implement_vector_type(lasm_bytes_vector, uint8_t);
+lasm_implement_vector_type(lasm_tokens_vector, lasm_token_s);
