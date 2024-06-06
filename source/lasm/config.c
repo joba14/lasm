@@ -50,6 +50,10 @@ static const char_t* _g_supported_archs[lasm_arch_types_count] =
 static const char_t* _g_supported_formats[lasm_format_types_count] =
 {
 	[lasm_format_type_elf]      = "elf"  ,
+	[lasm_format_type_elf32]    = "elf32",
+	[lasm_format_type_elf64]    = "elf64",
+	[lasm_format_type_pe]       = "pe"   ,
+	[lasm_format_type_pe32]     = "pe32" ,
 	[lasm_format_type_pe32plus] = "pe32+",
 };
 

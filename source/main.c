@@ -36,6 +36,10 @@ int32_t main(int32_t argc, const char_t** argv)
 		lasm_logger_debug("\n%s\n", lasm_ast_label_to_string(label));
 	}
 
+	// todo: when building the final executable file of provided format, if the
+	// provided format is not specific (e.g. elf or pe), it must be inferred by
+	// the provided architecture.
+
 	lasm_parser_drop(&parser);
 	lasm_arena_drop(&arena);
 	return 0;

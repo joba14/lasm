@@ -28,6 +28,10 @@ lasm_arch_type_e lasm_arch_type_from_string(const char_t* const arch_as_string);
 typedef enum
 {
 	lasm_format_type_elf,
+	lasm_format_type_elf32,
+	lasm_format_type_elf64,
+	lasm_format_type_pe,
+	lasm_format_type_pe32,
 	lasm_format_type_pe32plus,
 	lasm_format_types_count,
 	lasm_format_type_none,
