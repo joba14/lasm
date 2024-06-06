@@ -70,10 +70,10 @@ The Lasm programming language is a low-level, statically typed, imperative and s
 ### Milestones
 Below, there are the key milestones of the development process for the project:
 - [x] Implement common utilities and helper modules
-- [ ] Implement the lexer
+- [x] Implement the lexer
 - [ ] Implement the parser
-- [ ] Implement the code generator
-- [ ] Add standard library
+- [ ] Implement the binaries generator
+- [ ] Add minimal standard library
 - [ ] Add a virtual machine as an example project
 
 [(to the top)](#lasm)
