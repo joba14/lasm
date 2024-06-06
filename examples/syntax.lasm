@@ -74,7 +74,7 @@ end
 
 ; HIGHER LEVEL CONSTRUCTS -----------------------------------------------------
 ; To feel more like a programming language or a modern assembly, the labels can
-; be thought of and used a procedures and variables (constants or not). because
+; be thought of and used a procedures and variables (constants or not), because
 ; every definition is a label, procedures and variables can be defined as shown
 ; below:
 [addr=0x0F, align=2, size=auto, perm=rx]
