@@ -158,10 +158,6 @@ end
 [addr=STACK_ADDRESS, align=2, size=STACK_SIZE, perm=rw]
 stack:
 end
-; Note, that this label is placed where the address cursor points (in this case
-; 0x01). Also this label does not have any defined bytes in it's body as it has
-; only reserved 2 bytes of space without initializing this data to anything.
-```
 
 [(to the top)](#lasm)
 
