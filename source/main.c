@@ -27,8 +27,9 @@ int32_t main(int32_t argc, const char_t** argv)
 	lasm_config_s config = lasm_config_from_cli(&arena, &argc, &argv);
 	lasm_parser_s parser = lasm_parser_new(&arena, &config);
 
-	lasm_labels_vector_s labels = lasm_parser_shallow_parse(&parser);
-	lasm_parser_deep_parse(&parser, &labels);
+	lasm_parser_shallow_parse(&parser);
+	const lasm_labels_vector_s labels = lasm_parser_deep_parse(&parser);
+	(void)labels;
 
 	lasm_parser_drop(&parser);
 	lasm_arena_drop(&arena);

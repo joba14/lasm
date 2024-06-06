@@ -14,9 +14,10 @@
 #include "lasm/debug.h"
 #include "lasm/logger.h"
 
-void rl78s3_parser_parse_tokens(lasm_lexer_s* const lexer, lasm_ast_label_s* const label)
+void rl78s3_parser_parse_tokens(lasm_lexer_s* const lexer, lasm_labels_vector_s* const labels, lasm_ast_label_s* const label)
 {
 	lasm_debug_assert(lexer != NULL);
+	lasm_debug_assert(labels != NULL);
 	lasm_debug_assert(label != NULL);
 
 	// note: https://llvm-gcc-renesas.com/pdf/r01us0015ej0220_rl78.pdf.

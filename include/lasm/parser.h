@@ -24,6 +24,7 @@ typedef struct
 	lasm_arena_s* arena;
 	lasm_config_s* config;
 	lasm_lexer_s lexer;
+	lasm_labels_vector_s labels;
 } lasm_parser_s;
 
 /**
@@ -43,8 +44,8 @@ lasm_parser_s lasm_parser_new(lasm_arena_s* const arena, lasm_config_s* const co
  */
 void lasm_parser_drop(lasm_parser_s* const parser);
 
-lasm_labels_vector_s lasm_parser_shallow_parse(lasm_parser_s* const parser);
+void lasm_parser_shallow_parse(lasm_parser_s* const parser);
 
-void lasm_parser_deep_parse(lasm_parser_s* const parser, lasm_labels_vector_s* const labels);
+lasm_labels_vector_s lasm_parser_deep_parse(lasm_parser_s* const parser);
 
 #endif

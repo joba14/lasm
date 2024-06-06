@@ -55,33 +55,32 @@ void lasm_parser_drop(lasm_parser_s* const parser)
 	lasm_lexer_drop(&parser->lexer);
 }
 
-lasm_labels_vector_s lasm_parser_shallow_parse(lasm_parser_s* const parser)
+void lasm_parser_shallow_parse(lasm_parser_s* const parser)
 {
 	lasm_debug_assert(parser != NULL);
 
-	lasm_labels_vector_s labels = lasm_labels_vector_new(parser->arena, 1);
+	parser->labels = lasm_labels_vector_new(parser->arena, 1);
 	lasm_ast_label_s label = {0};
 
 	while (_parse_label_header(parser, &label))
 	{
-		lasm_labels_vector_push(&labels, label);
+		lasm_labels_vector_push(&parser->labels, label);
 		lasm_logger_debug("shallow-parse\n%s\n", lasm_ast_label_to_string(&label));
 	}
-
-	return labels;
 }
 
-void lasm_parser_deep_parse(lasm_parser_s* const parser, lasm_labels_vector_s* const labels)
+lasm_labels_vector_s lasm_parser_deep_parse(lasm_parser_s* const parser)
 {
 	lasm_debug_assert(parser != NULL);
-	lasm_debug_assert(labels != NULL);
 
-	for (uint64_t index = 0; index < labels->count; ++index)
+	for (uint64_t index = 0; index < parser->labels.count; ++index)
 	{
-		lasm_ast_label_s* const label = lasm_labels_vector_at(labels, index);
+		lasm_ast_label_s* const label = lasm_labels_vector_at(&parser->labels, index);
 		_parse_label_body(parser, label);
 		lasm_logger_debug("deep-parse\n%s\n", lasm_ast_label_to_string(label));
 	}
+
+	return parser->labels;
 }
 
 static void _parse_label_attr_addr(lasm_parser_s* const parser, lasm_ast_label_s* const label)
@@ -480,7 +479,7 @@ static void _parse_label_body(lasm_parser_s* const parser, lasm_ast_label_s* con
 		case lasm_arch_type_rl78s3:
 		{
 			// todo: parse the rl78s3 assembly!
-			rl78s3_parser_parse_tokens(&parser->lexer, label);
+			rl78s3_parser_parse_tokens(&parser->lexer, &parser->labels, label);
 		} break;
 
 		default:
