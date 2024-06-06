@@ -38,10 +38,15 @@ void lasm_logger_log(const char_t* const format, ...) __attribute__ ((format (pr
  */
 void _lasm_logger_debug_impl(const char_t* const format, ...) __attribute__ ((format (printf, 1, 2)));
 
-#	define lasm_logger_debug(_format, ...)                                      \
+#	define lasm_logger_debug(_format, ...)                                     \
 		_lasm_logger_debug_impl(_format, ##__VA_ARGS__)
 #else
-#	define lasm_logger_debug(_format, ...) (void)(_format); (void)(__VA_ARGS__)
+#	define lasm_logger_debug(_format, ...)                                     \
+		do                                                                     \
+		{                                                                      \
+			(void)(_format);                                                   \
+			(void)(__VA_ARGS__);                                               \
+		} while (0)
 #endif
 
 /**
