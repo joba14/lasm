@@ -29,7 +29,12 @@ int32_t main(int32_t argc, const char_t** argv)
 
 	lasm_parser_shallow_parse(&parser);
 	const lasm_labels_vector_s labels = lasm_parser_deep_parse(&parser);
-	(void)labels;
+
+	for (uint64_t index = 0; index < labels.count; ++index)
+	{
+		lasm_ast_label_s* const label = lasm_labels_vector_at((lasm_labels_vector_s* const)&labels, index);
+		lasm_logger_debug("\n%s\n", lasm_ast_label_to_string(label));
+	}
 
 	lasm_parser_drop(&parser);
 	lasm_arena_drop(&arena);

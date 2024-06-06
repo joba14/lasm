@@ -41,7 +41,7 @@ void _lasm_logger_debug_impl(const char_t* const format, ...) __attribute__ ((fo
 #	define lasm_logger_debug(_format, ...)                                      \
 		_lasm_logger_debug_impl(_format, ##__VA_ARGS__)
 #else
-#	define lasm_logger_debug(_format, ...)
+#	define lasm_logger_debug(_format, ...) (void)(_format); (void)(__VA_ARGS__)
 #endif
 
 /**

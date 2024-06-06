@@ -65,7 +65,6 @@ void lasm_parser_shallow_parse(lasm_parser_s* const parser)
 	while (_parse_label_header(parser, &label))
 	{
 		lasm_labels_vector_push(&parser->labels, label);
-		lasm_logger_debug("shallow-parse\n%s\n", lasm_ast_label_to_string(&label));
 	}
 }
 
@@ -77,7 +76,6 @@ lasm_labels_vector_s lasm_parser_deep_parse(lasm_parser_s* const parser)
 	{
 		lasm_ast_label_s* const label = lasm_labels_vector_at(&parser->labels, index);
 		_parse_label_body(parser, label);
-		lasm_logger_debug("deep-parse\n%s\n", lasm_ast_label_to_string(label));
 	}
 
 	return parser->labels;
