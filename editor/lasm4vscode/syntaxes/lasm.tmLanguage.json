@@ -2,33 +2,34 @@
 {
 	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
 	"name": "lasm",
+	"scopeName": "source.lasm",
 	"patterns": [
 		{
 			"include": "#comments"
 		},
 		{
-			"include": "#keywords"
+			"include": "#strings"
 		},
 		{
-			"include": "#labels"
+			"include": "#keywords"
 		},
 		{
 			"include": "#numerics"
 		},
 		{
-			"include": "#strings"
+			"include": "#labels"
 		}
 	],
 	"repository": {
 		"comments": {
 			"patterns": [
 				{
-					"begin": "//",
+					"begin": ";",
 					"end": "$",
 					"name": "comment.line.double-slash.lasm"
 				},
 				{
-					"begin": ";",
+					"begin": "//",
 					"end": "$",
 					"name": "comment.line.double-slash.lasm"
 				},
@@ -39,11 +40,61 @@
 				}
 			]
 		},
+		"strings": {
+			"patterns": [
+				{
+					"begin": "\"",
+					"end": "\"",
+					"name": "string.quoted.double.lasm"
+				},
+				{
+					"begin": "'",
+					"end": "'",
+					"name": "string.quoted.single.lasm"
+				}
+			]
+		},
 		"keywords": {
 			"patterns": [
 				{
-					"name": "entity.name.tag.lasm",
-					"match": "\\b(entry|addr|align|size|perm|r|rw|rx|rwx|auto|end)\\b"
+					"match": "\\b(addr|align|size|perm|auto|r|rw|rx|rwx|end)\\b",
+					"captures": {
+						"1": {
+							"name": "keyword.other.lasm"
+						}
+					}
+				},
+				{
+					"match": "\\b(ret|mov|movw|r[0-9]+|cmp|br|bne|stw|ldw|call|nop|add|addw|sub|subw|inc|incw|dec|decw)\\b",
+					"captures": {
+						"1": {
+							"name": "constant.numeric.lasm"
+						}
+					}
+				},
+				{
+					"name": "string.regexp",
+					"match": "(^#)(include|define)"
+				}
+			]
+		},
+		"numerics": {
+			"patterns": [
+				{
+					"name":"constant.numeric.lasm",
+					"match": "(\\d+)(?!\\w+)"
+				},
+				{
+					"name": "constant.numeric.integer.hex.mira",
+					"match": "\\b0x[0-9A-Fa-f]+\\b"
+				},
+				{
+					"name": "constant.numeric.integer.binary.mira",
+					"match": "\\b0b[01]+\\b"
+				},
+				{
+					"name": "constant.numeric.integer.octal.mira",
+					"match": "\\b0o[0-7]+\\b"
 				}
 			]
 		},
@@ -51,49 +102,9 @@
 			"patterns": [
 				{
 					"name": "entity.name.function.lasm",
-					"match": "\\b([\\w_.-]+:)|([\\w_.-]+\\s+:)\\b"
-				}
-			]
-		},
-		"numerics": {
-			"patterns": [
-				{
-					"name": "constant.numeric.integer.hex.lasm",
-					"match": "\\b0x[0-9A-Fa-f]+\\b"
-				},
-				{
-					"name": "constant.numeric.integer.binary.lasm",
-					"match": "\\b0b[01]+\\b"
-				},
-				{
-					"name": "constant.numeric.integer.octal.lasm",
-					"match": "\\b0o[0-7]+\\b"
-				},
-				{
-					"name": "constant.numeric.integer.decimal.lasm",
-					"match": "\\b[0-9]+\\b"
-				},
-				{
-					"name": "constant.numeric.float.lasm",
-					"match": "\\b[0-9]+\\.[0-9]+\\b"
-				}
-			]
-		},
-		"strings": {
-			"patterns": [
-				{
-					"name": "string.quoted.double.lasm",
-					"begin": "\"",
-					"end": "\"",
-					"patterns": [
-						{
-							"name": "constant.character.escape.lasm",
-							"match": "\\\\."
-						}
-					]
+					"match": "\\b[.\\w]([^\\s\\\\]+:)|([^\\s\\\\]+\\s+:)\\b"
 				}
 			]
 		}
-	},
-	"scopeName": "source.lasm"
+	}
 }
