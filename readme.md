@@ -9,7 +9,6 @@
 # Lasm
 **The linker+assembly low level programming language**<br>[Report a bug](https://github.com/joba14/lasm/issues/new) · [Request a feature](https://github.com/joba14/lasm/issues/new)
 
-
 ## Table of Contents
 - [Warning](#warning)
 - [Overview](#overview)
