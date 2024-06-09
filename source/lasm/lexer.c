@@ -129,6 +129,13 @@ static inline bool_t _is_symbol_first_of_keyword_or_identifier(const utf8char_t 
 static inline bool_t _is_symbol_not_first_of_keyword_or_identifier(const utf8char_t c);
 
 /**
+ * @brief Skip one line.
+ * 
+ * @param lexer lexer reference
+ */
+static void _skip_entire_line(lasm_lexer_s* const lexer);
+
+/**
  * @brief Skip (nested) multi line comments.
  * 
  * @param lexer lexer reference
@@ -338,18 +345,15 @@ lasm_token_type_e lasm_lexer_lex(lasm_lexer_s* const lexer, lasm_token_s* const 
 
 	switch (c)
 	{
-		case ';':
-		case '#':
-		{
-			while (((c = _next_utf8char(lexer, NULL, true)) != lasm_utf8_invalid) && (c != '\n'));
-			_clear_buffer(lexer);
-			return lasm_lexer_lex(lexer, token);
-		} break;
-		case '/':  { (void)_lex_2_symbols_token(lexer, token, c);                                      } break;
+		// comments:
+		case ';':  { _skip_entire_line(lexer); return lasm_lexer_lex(lexer, token);                   } break;
+		case '/':  { (void)_lex_2_symbols_token(lexer, token, c);                                     } break;
 
-		case '\'': { (void)_lex_rune_literal_token(lexer, token);                                      } break;
-		case '\"': { (void)_lex_single_line_string_literal_token(lexer, token);                        } break;
+		// strings and character literals
+		case '\'': { (void)_lex_rune_literal_token(lexer, token);                                     } break;
+		case '\"': { (void)_lex_single_line_string_literal_token(lexer, token);                       } break;
 
+		// symbolic tokens
 		case '.':  { *token = lasm_token_new(lasm_token_type_symbolic_dot,           start_location); } break;
 		case ',':  { *token = lasm_token_new(lasm_token_type_symbolic_comma,         start_location); } break;
 		case '=':  { *token = lasm_token_new(lasm_token_type_symbolic_equal,         start_location); } break;
@@ -357,6 +361,7 @@ lasm_token_type_e lasm_lexer_lex(lasm_lexer_s* const lexer, lasm_token_s* const 
 		case '[':  { *token = lasm_token_new(lasm_token_type_symbolic_left_bracket,  start_location); } break;
 		case ']':  { *token = lasm_token_new(lasm_token_type_symbolic_right_bracket, start_location); } break;
 
+		// unknown/invalid tokens
 		default:
 		{
 			static char_t buffer[lasm_utf8_max_size];
@@ -464,7 +469,7 @@ static utf8char_t _next_utf8char(lasm_lexer_s* const lexer, lasm_location_s* con
 
 static bool_t _is_symbol_a_white_space(const utf8char_t c)
 {
-	return (('\t' == c) || ('\n' == c) || ('\r' == c) || (' ' == c));
+	return (('\t' == c) || ('\n' == c) || ('\r' == c) || ('\v' == c) || ('\f' == c) || (' ' == c));
 }
 
 static utf8char_t _get_utf8char(lasm_lexer_s* const lexer, lasm_location_s* const location)
@@ -519,6 +524,15 @@ static inline bool_t _is_symbol_first_of_keyword_or_identifier(const utf8char_t 
 static inline bool_t _is_symbol_not_first_of_keyword_or_identifier(const utf8char_t c)
 {
 	return ((c <= 0x7F) && (isalnum(c) || ('_' == c) || ('-' == c)));
+}
+
+static void _skip_entire_line(lasm_lexer_s* const lexer)
+{
+	lasm_debug_assert(lexer != NULL);
+	utf8char_t c = 0;
+
+	while (((c = _next_utf8char(lexer, NULL, true)) != lasm_utf8_invalid) && (c != '\n'));
+	_clear_buffer(lexer);
 }
 
 static bool_t _skip_nested_multi_line_comments(lasm_lexer_s* const lexer, utf8char_t c)
@@ -982,39 +996,26 @@ static lasm_token_type_e _lex_2_symbols_token(lasm_lexer_s* const lexer, lasm_to
 	lasm_debug_assert(token != NULL);
 	lasm_debug_assert(c != lasm_utf8_invalid);
 
+	lasm_debug_assert('/' == c);
 	token->location = lexer->location;
 
-	switch (c)
+	switch ((c = _next_utf8char(lexer, NULL, false)))
 	{
 		case '/':
 		{
-			switch ((c = _next_utf8char(lexer, NULL, false)))
-			{
-				case '/':
-				{
-					while (((c = _next_utf8char(lexer, NULL, true)) != lasm_utf8_invalid) && (c != '\n'));
-					_clear_buffer(lexer);
-					return lasm_lexer_lex(lexer, token);
-				} break;
-
-				case '*':
-				{
-					if (!_skip_nested_multi_line_comments(lexer, c))
-					{
-						_log_lexer_error(token->location, "unclosed multi line comment found!");
-					}
-
-					_clear_buffer(lexer);
-					return lasm_lexer_lex(lexer, token);
-				} break;
-			}
+			_skip_entire_line(lexer);
+			return lasm_lexer_lex(lexer, token);
 		} break;
 
-		default:
+		case '*':
 		{
-			// note: should never ever happen as this function will get symbols
-			// that are already verified to be correct ones!
-			lasm_debug_assert(0);  // note: sanity check for developers.
+			if (!_skip_nested_multi_line_comments(lexer, c))
+			{
+				_log_lexer_error(token->location, "unclosed multi line comment found!");
+			}
+
+			_clear_buffer(lexer);
+			return lasm_lexer_lex(lexer, token);
 		} break;
 	}
 
