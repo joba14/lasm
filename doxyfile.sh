@@ -960,6 +960,7 @@ INPUT_FILE_ENCODING    =
 
 FILE_PATTERNS          = *.c \
                          *.h \
+                         *.inl \
                          *.md
 
 # The RECURSIVE tag can be used to specify whether or not subdirectories should
