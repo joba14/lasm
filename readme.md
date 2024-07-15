@@ -210,34 +210,52 @@ To clone the project repository, use the following command:
 
 #### Dependencies
 Before building the project and generating documentation, ensure you have the necessary dependencies installed. This project requires the following tools:
+- git
 - gcc
+- cpio
+- file
+- size
+- bzip2
+- [cppcheck](https://github.com/danmar/cppcheck)
 - [doxygen](https://doxygen.nl/)
+
+**If you do not want to deal with dependencies and feel comfortable using docker, just do that and skip this step entirely :D**
 
 [(to the top)](#lasm)
 
 #### Building the Project
-Once you have the dependencies installed, follow these steps to build the project:
+If you wish to build with docker:
 ```sh
-> cd <root-of-the-repo>
-> gcc -o ./build.bin ./build.c
-> chmod +x ./build.bin
-> ./build.bin all
+> cd <root-of-the-repo>/scripts
+> python3 ./with_docker.py build debug
+```
+Or, if you have all the dependencies installed on your linux/posix machine:
+```sh
+> cd <root-of-the-repo>/scripts
+> chmod +x ./build.sh
+> ./build.sh <debug|release>
 ```
 
 [(to the top)](#lasm)
 
 #### Generating the Docs
-Once you have the doxygen installed, follow these steps to generate the documentation:
+If you wish to build with docker:
 ```sh
-> cd <root-of-the-repo>
-> ./build.bin docs
+> cd <root-of-the-repo>/scripts
+> python3 ./with_docker.py docs
+```
+Or, if you have all the dependencies installed on your linux/posix machine:
+```sh
+> cd <root-of-the-repo>/scripts
+> chmod +x ./docs.sh
+> ./docs.sh
 ```
 
 [(to the top)](#lasm)
 
 
 ### Usage
-If you have an executable of the assembler (doesnloaded or built from scratch) and are using it for the first time or want to look up it's cli commands, use command below:
+If you have an executable of the assembler (downloaded or built from scratch) and are using it for the first time or want to look up it's cli commands, use command below:
 ```sh
 > lasm help
 ```
