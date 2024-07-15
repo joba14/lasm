@@ -39,6 +39,7 @@ int32_t main(int32_t argc, const char_t** argv)
 	// todo: when building the final executable file of provided format, if the
 	// provided format is not specific (e.g. elf or pe), it must be inferred by
 	// the provided architecture.
+	// todo: should check if any label matches the provided entry symbols.
 
 	lasm_parser_drop(&parser);
 	lasm_arena_drop(&arena);

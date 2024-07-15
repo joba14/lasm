@@ -20,7 +20,7 @@ led-on:
 end
 
 
-[entry, addr=auto, align=2, size=auto, perm=rx]
+[addr=auto, align=2, size=auto, perm=rx]
 start:
 	movw r0, 1
 	movw r1, 1

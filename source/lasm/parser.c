@@ -15,6 +15,14 @@
 #include "lasm/logger.h"
 #include "lasm/archs/z80_parser.h"
 
+#define _log_parser_warn(_location, _format, ...)                              \
+	do                                                                         \
+	{                                                                          \
+		(void)fprintf(stderr, "%s:%lu:%lu: ",                                  \
+			(_location).file, (_location).line, (_location).column);           \
+		lasm_logger_warn(_format, ## __VA_ARGS__);                             \
+	} while (0)
+
 #define _log_parser_error(_location, _format, ...)                             \
 	do                                                                         \
 	{                                                                          \
@@ -365,16 +373,16 @@ static void _parse_label_attr_perm(lasm_parser_s* const parser, lasm_ast_label_s
 
 	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_comma)
 	{
-		_log_parser_error(token.location,
-			"expected a ',' symbolic token after the 'perm' attribute's value, but found '%s' token.\n"
-			"attributes must have a trailing ',' after their values. follow the example below:\n"
-			"    " lasm_red "                                                        v~~~~~~~~~~~~~~~~~~~~" lasm_reset "\n"
-			"    "          "[addr=<value>, align=<value>, size=<value>, perm=<value>" lasm_red "," lasm_reset "]\n"
+		_log_parser_warn(token.location,
+			"even thought it is not enforced by an error, it is a standard and a good practice to trail each\n"
+			"attribute with a comma. follow the example below:\n"
+			"    " lasm_yellow "                                            ~~~~~~~~~~~~v" lasm_reset "\n"
+			"    "          "[addr=<value>, align=<value>, size=<value>, perm=<value>" lasm_yellow "," lasm_reset "]\n"
 			"    "          "example:\n"
 			"    "          "    ; ... \n"
-			"    "          "end\n",
-			lasm_token_type_to_string(token.type)
+			"    "          "end\n"
 		);
+		lasm_lexer_unlex(&parser->lexer, &token);
 	}
 }
 
@@ -405,10 +413,10 @@ static bool_t _parse_label_header(lasm_parser_s* const parser, lasm_ast_label_s*
 		);
 	}
 
-	_parse_label_attr_addr(parser, label);
+	_parse_label_attr_addr( parser, label);
 	_parse_label_attr_align(parser, label);
-	_parse_label_attr_size(parser, label);
-	_parse_label_attr_perm(parser, label);
+	_parse_label_attr_size( parser, label);
+	_parse_label_attr_perm( parser, label);
 
 	if (lasm_lexer_lex(&parser->lexer, &token) != lasm_token_type_symbolic_right_bracket)
 	{

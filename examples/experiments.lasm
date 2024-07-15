@@ -13,7 +13,7 @@ example2:
 	nop
 end
 
-[addr=20, align=auto, size=300, perm=rx,]
+[addr=20, align=auto, size=300, perm=rx]
 example3:
 	nop
 	nop
