@@ -50,10 +50,8 @@ void* lasm_common_realloc(void* pointer, const uint64_t size) __attribute__((war
  * @note After freeing the memory, the pointer will be set to NULL.
  * 
  * @param pointer pointer to the memory region to free
- * 
- * @return void*
  */
-void* lasm_common_free(const void* pointer) __attribute__((warn_unused_result));
+void lasm_common_free(const void* pointer);
 
 /**
  * @brief Wrapper for c's stdlib exit function.

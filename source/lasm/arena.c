@@ -38,8 +38,8 @@ void lasm_arena_node_drop(lasm_arena_node_s* node)
 {
 	lasm_debug_assert(node != NULL);
 	lasm_debug_assert(node->pointer != NULL);
-	node->pointer = lasm_common_free(node->pointer);
-	(void)lasm_common_free(node);
+	lasm_common_free(node->pointer);
+	lasm_common_free(node);
 	*node = (lasm_arena_node_s) {0};
 }
 

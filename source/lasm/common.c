@@ -46,10 +46,9 @@ void* lasm_common_realloc(void* pointer, const uint64_t size)
 	return pointer;
 }
 
-void* lasm_common_free(const void* pointer)
+void lasm_common_free(const void* pointer)
 {
 	free((void*)pointer);
-	return NULL;
 }
 
 void lasm_common_exit(const int32_t code)
