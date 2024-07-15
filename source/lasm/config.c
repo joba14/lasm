@@ -11,7 +11,6 @@
  */
 
 #include "lasm/config.h"
-#include "lasm/version.h"
 #include "lasm/debug.h"
 #include "lasm/logger.h"
 
@@ -19,7 +18,7 @@
 
 static const char_t* _g_program = NULL;
 
-static const char_t* const g_usage_banner =
+static const char_t* const _g_usage_banner =
 	"usage: %s <command>\n"
 	"\n"
 	"commands:\n"
@@ -148,7 +147,10 @@ lasm_config_s lasm_config_from_cli(lasm_arena_s* const arena, int32_t* const arg
 	}
 	else if (lasm_common_strcmp(command, "version") == 0)
 	{
-		lasm_logger_log("%s %s", _g_program, lasm_version);
+#if !defined(lasm_version_major) || !defined(lasm_version_minor) || !defined(lasm_version_patch)
+#	error "missing lasm_version_* definition(s)!"
+#endif
+		lasm_logger_log("%s v%u.%u.%u_d%u", _g_program, lasm_version_major, lasm_version_minor, lasm_version_patch, lasm_version_dev);
 		lasm_common_exit(0);
 	}
 	else
@@ -237,9 +239,9 @@ static const char_t* _supported_formats_to_string(void)
 
 static void _print_usage_banner(void)
 {
-	lasm_debug_assert(g_usage_banner != NULL);
+	lasm_debug_assert(_g_usage_banner != NULL);
 	lasm_debug_assert(_g_program != NULL);
-	lasm_logger_log(g_usage_banner, _g_program, _supported_archs_to_string(), _supported_formats_to_string());
+	lasm_logger_log(_g_usage_banner, _g_program, _supported_archs_to_string(), _supported_formats_to_string());
 }
 
 static const char_t* _shift_cli_args(int32_t* const argc, const char_t*** const argv)
