@@ -345,6 +345,40 @@ lasm_token_type_e lasm_lexer_lex(lasm_lexer_s* const lexer, lasm_token_s* const 
 
 	switch (c)
 	{
+		// preprocessor:
+		case '#':
+		{
+			const lasm_location_s column_location = lexer->location;
+			lasm_token_s line_token = lasm_token_new(lasm_token_type_none, lexer->location);
+
+			if (lasm_lexer_lex(lexer, &line_token) != lasm_token_type_literal_uval)
+			{
+				static char_t buffer[lasm_utf8_max_size];
+				const uint8_t size = lasm_utf8_encode(buffer, c);
+				_log_lexer_error(column_location, "invalid #line directive encountered (line number): '%.*s'", (int32_t)size, buffer);
+			}
+
+			const lasm_location_s file_location = lexer->location;
+			lasm_token_s file_token = lasm_token_new(lasm_token_type_none, lexer->location);
+
+			if (lasm_lexer_lex(lexer, &file_token) != lasm_token_type_literal_str)
+			{
+				static char_t buffer[lasm_utf8_max_size];
+				const uint8_t size = lasm_utf8_encode(buffer, c);
+				_log_lexer_error(file_location, "invalid #line directive encountered (file name): '%.*s'", (int32_t)size, buffer);
+			}
+
+			lexer->location = (lasm_location_s)
+			{
+				.file   = file_token.as.ident.data,
+				.line   = line_token.as.uval - 1,
+				.column = 1,
+			};
+
+			_skip_entire_line(lexer);
+			return lasm_lexer_lex(lexer, token);
+		} break;
+
 		// comments:
 		case ';':  { _skip_entire_line(lexer); return lasm_lexer_lex(lexer, token);                   } break;
 		case '/':  { (void)_lex_2_symbols_token(lexer, token, c);                                     } break;

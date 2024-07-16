@@ -75,6 +75,7 @@ typedef struct
 
 typedef struct
 {
+	lasm_location_s location;
 	lasm_ast_attr_s attrs[lasm_ast_attr_types_count];
 	const char_t* name;
 	lasm_tokens_vector_s body_tokens;

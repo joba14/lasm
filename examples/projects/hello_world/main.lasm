@@ -1,0 +1,20 @@
+
+#ifndef __main_lasm__
+#define __main_lasm__
+
+#define __alignment__ 8
+
+
+[addr=0, align=__alignment__, size=0, perm=rx,]
+_meta:
+end
+
+
+[addr=auto, align=auto, size=auto, perm=auto,]
+_start:
+	nop
+	nop
+	nop
+end
+
+#endif

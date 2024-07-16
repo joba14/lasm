@@ -347,10 +347,11 @@ static void _parse_label_attr_perm(lasm_parser_s* const parser, lasm_ast_label_s
 
 	switch (token.type)
 	{
-		case lasm_token_type_keyword_r:   { perm_type = lasm_ast_perm_type_r;   } break;
-		case lasm_token_type_keyword_rw:  { perm_type = lasm_ast_perm_type_rw;  } break;
-		case lasm_token_type_keyword_rx:  { perm_type = lasm_ast_perm_type_rx;  } break;
-		case lasm_token_type_keyword_rwx: { perm_type = lasm_ast_perm_type_rwx; } break;
+		case lasm_token_type_keyword_r:    { perm_type = lasm_ast_perm_type_r;    } break;
+		case lasm_token_type_keyword_rw:   { perm_type = lasm_ast_perm_type_rw;   } break;
+		case lasm_token_type_keyword_rx:   { perm_type = lasm_ast_perm_type_rx;   } break;
+		case lasm_token_type_keyword_rwx:  { perm_type = lasm_ast_perm_type_rwx;  } break;
+		case lasm_token_type_keyword_auto: { perm_type = lasm_ast_perm_type_none; } break;
 
 		default:
 		{
@@ -367,7 +368,7 @@ static void _parse_label_attr_perm(lasm_parser_s* const parser, lasm_ast_label_s
 		.inferred = (lasm_token_type_keyword_auto == token.type),
 		.as.perm  = (const lasm_ast_attr_perm_s)
 		{
-			.value = (lasm_token_type_keyword_auto == token.type ? lasm_ast_perm_type_none : perm_type),
+			.value = perm_type,
 		},
 	};
 
@@ -398,6 +399,8 @@ static bool_t _parse_label_header(lasm_parser_s* const parser, lasm_ast_label_s*
 	{
 		return false;
 	}
+
+	label->location = parser->lexer.location;
 
 	if (token.type != lasm_token_type_symbolic_left_bracket)
 	{
