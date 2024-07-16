@@ -11,6 +11,7 @@ RUN apt install size -y
 RUN apt install bzip2 -y
 RUN apt install cppcheck -y
 RUN apt install doxygen -y
+RUN apt install python3 -y
 RUN rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace

@@ -218,10 +218,23 @@ Before building the project and generating documentation, ensure you have the ne
 - bzip2
 - [cppcheck](https://github.com/danmar/cppcheck)
 - [doxygen](https://doxygen.nl/)
+- python3
 
 **If you do not want to deal with dependencies and feel comfortable using docker, just do that and skip this step entirely :D**
 
 [(to the top)](#lasm)
+
+#### Cleaning the Project
+If you wish to build with docker:
+```sh
+> cd <root-of-the-repo>/scripts
+> python3 ./with_docker.py clean
+```
+Or, if you have all the dependencies installed on your linux/posix machine:
+```sh
+> cd <root-of-the-repo>/scripts
+> python3 ./build.py clean
+```
 
 #### Building the Project
 If you wish to build with docker:
@@ -232,8 +245,7 @@ If you wish to build with docker:
 Or, if you have all the dependencies installed on your linux/posix machine:
 ```sh
 > cd <root-of-the-repo>/scripts
-> chmod +x ./build.sh
-> ./build.sh <debug|release>
+> python3 ./build.py build [--config debug|release]
 ```
 
 [(to the top)](#lasm)
@@ -247,8 +259,19 @@ If you wish to build with docker:
 Or, if you have all the dependencies installed on your linux/posix machine:
 ```sh
 > cd <root-of-the-repo>/scripts
-> chmod +x ./docs.sh
-> ./docs.sh
+> python3 ./build.py docs
+```
+
+#### Linting the Project
+If you wish to build with docker:
+```sh
+> cd <root-of-the-repo>/scripts
+> python3 ./with_docker.py lint [--config release|debug]
+```
+Or, if you have all the dependencies installed on your linux/posix machine:
+```sh
+> cd <root-of-the-repo>/scripts
+> python3 ./build.py lint [--config release|debug]
 ```
 
 [(to the top)](#lasm)
