@@ -78,7 +78,7 @@ build_target(build_release, "build the project in release build configuration.")
 build_target(docs, "generate the docs for the project.")
 {
 	build_command_s command = {0};
-	build_command_append(&command, "doxygen", "./doxyfile.sh");
+	build_command_append(&command, "doxygen", "./.doxyfile");
 	const bool_t status = build_proc_run_sync(&command);
 	build_vector_drop(&command);
 	return status;
@@ -168,9 +168,13 @@ static void make_linter_command(build_command_s* const command, const build_conf
 		"--inconclusive",
 		"--std=c11",
 		"--verbose",
-		"-I./include",
 		"--error-exitcode=1",
 		"--language=c",
+		"-I./include",
+		"-Dlasm_version_major="stringify(version_major),
+		"-Dlasm_version_minor="stringify(version_minor),
+		"-Dlasm_version_patch="stringify(version_patch),
+		"-Dlasm_version_dev="stringify(version_dev),
 	);
 
 	switch (conf)
