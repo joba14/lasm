@@ -44,7 +44,7 @@ static bool_t _parse_label_header(lasm_parser_s* const parser, lasm_ast_label_s*
 
 static void _parse_label_body(lasm_parser_s* const parser, lasm_ast_label_s* const label);
 
-lasm_parser_s lasm_parser_new(lasm_arena_s* const arena, lasm_config_s* const config)
+lasm_parser_s lasm_parser_new(lasm_arena_s* const arena, lasm_config_build_s* const config)
 {
 	lasm_debug_assert(arena != NULL);
 	lasm_debug_assert(config != NULL);
@@ -483,7 +483,7 @@ static void _parse_label_body(lasm_parser_s* const parser, lasm_ast_label_s* con
 
 	label->body = lasm_bytes_vector_new(parser->arena, 1);
 
-	switch (lasm_arch_type_from_string(parser->config->arch))
+	switch (parser->config->arch)
 	{
 		case lasm_arch_type_z80:
 		{

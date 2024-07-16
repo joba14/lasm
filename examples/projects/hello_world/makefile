@@ -1,54 +1,47 @@
 
+# ------------------------------------------------------------------ #
 # config
-INCLUDE_PATHS := \
-	-I.
 
-BUILD_FLAGS := \
-	-a z80 \
-	-f elf64 \
-	-e _start
+include_paths := -I.
 
-SOURCE_FILE = ./main.lasm
-OUTPUT_NAME = hello_world
+lasm_flags := -a z80 -f elf64 -e _start
 
-# -------------------------------------------------- #
-# do not change anything below this line (unless you
-# know what you are doing).
+source_file := main.lasm
+output_name := hello_world
 
-# commands
-CPP = cpp
-LASM = ./../../../build/lasm
+lasm := ./../../../build/lasm
+# ------------------------------------------------------------------ #
+# note: do not change anything below this line (unless you know what
+# you are doing).
 
 # flags
-CPP_FLAGS = -E $(INCLUDE_PATHS)
-LASM_FLAGS = $(BUILD_FLAGS)
+cpp_flags = -E $(include_paths)
 
 # directories
-SOURCE_DIR = ./
-BUILD_DIR = ./build
+source_dir_path = ./
+build_dir_path = ./build
 
 # output files
-OUTPUT_INT = $(BUILD_DIR)/$(OUTPUT_NAME).int
-OUTPUT_BIN = $(BUILD_DIR)/$(OUTPUT_NAME).bin
+output_int_file = $(build_dir_path)/$(output_name).int
+output_bin_file = $(build_dir_path)/$(output_name).bin
 
 # targets
 all: setup build
 
 setup:
-	mkdir -p $(BUILD_DIR)
-	echo $(shell pwd) > $(BUILD_DIR)/project_root.txt
+	mkdir -p $(build_dir_path)
+	echo $(shell pwd) > $(build_dir_path)/project_root.txt
 
-build: $(OUTPUT_BIN)
+build: $(output_bin_file)
 
-$(OUTPUT_BIN): $(OUTPUT_INT)
-	$(LASM) build $(LASM_FLAGS) -o $(OUTPUT_BIN) $(OUTPUT_INT)
+$(output_bin_file): $(output_int_file)
+	$(lasm) build $(lasm_flags) -o $(output_bin_file) $(output_int_file)
 
-$(OUTPUT_INT): $(SOURCE_DIR)/$(SOURCE_FILE)
-	$(CPP) $(CPP_FLAGS) -o $@ $<
+$(output_int_file): $(source_dir_path)/$(source_file)
+	cpp $(cpp_flags) -o $@ $<
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf $(build_dir_path)
 
 .PHONY: all setup build clean
-
-# -------------------------------------------------- #
+# ------------------------------------------------------------------ #

@@ -217,7 +217,7 @@ static lasm_token_type_e _lex_single_line_string_literal_token(lasm_lexer_s* con
  */
 static lasm_token_type_e _lex_2_symbols_token(lasm_lexer_s* const lexer, lasm_token_s* const token, utf8char_t c);
 
-lasm_lexer_s lasm_lexer_new(lasm_arena_s* const arena, lasm_config_s* const config)
+lasm_lexer_s lasm_lexer_new(lasm_arena_s* const arena, lasm_config_build_s* const config)
 {
 	lasm_debug_assert(arena != NULL);
 	lasm_debug_assert(config != NULL);

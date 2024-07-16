@@ -22,6 +22,14 @@ static const char_t* const _g_usage_banner =
 	"usage: %s <command>\n"
 	"\n"
 	"commands:\n"
+	"    init <-t template> <directory>      initialize provided directory with a specified template. warning: it will\n"
+	"                                        overwrite the existing build script and the entry.lasm file if they are\n"
+	"                                        in the provided directory!\n"
+	"        required:\n"
+	"            -t, --template <name>       set the build system script template format to create a build script file\n"
+	"                                        in the provided directory. supported templates are: %s.\n"
+	"            <directory>                 directory to use as a root of the project.\n"
+	"\n"
 	"    build [options] <source.lasm>       build the project with provided source file.\n"
 	"        required:\n"
 	"            -a, --arch <name>           set the target architecture for the executable. supported architectures\n"
@@ -36,10 +44,16 @@ static const char_t* const _g_usage_banner =
 	"                                        provided source file with extension removed if not provided.\n"
 	"\n"
 	"    help                                print this help message banner.\n"
+	"\n"
 	"    version                             print the version of this executable.\n"
 	"\n"
 	"notice:\n"
 	"    this executable is distributed under the \"lasm gplv1\" license.\n";
+
+static const char_t* _g_supported_templates[lasm_template_types_count] =
+{
+	[lasm_template_type_make] = "make",
+};
 
 static const char_t* _g_supported_archs[lasm_arch_types_count] =
 {
@@ -58,6 +72,8 @@ static const char_t* _g_supported_formats[lasm_format_types_count] =
 
 static const char_t* _get_file_name_from_path(const char_t* const path);
 
+static const char_t* _supported_templates_to_string(void);
+
 static const char_t* _supported_archs_to_string(void);
 
 static const char_t* _supported_formats_to_string(void);
@@ -70,10 +86,38 @@ static bool_t _match_cli_option(const char_t* const option, const char_t* const 
 
 static const char_t* _get_option_argument(const char_t* const option, int32_t* const argc, const char_t*** const argv);
 
+static lasm_config_s _parse_init_command(lasm_arena_s* const arena, int32_t* const argc, const char_t*** const argv);
+
 static lasm_config_s _parse_build_command(lasm_arena_s* const arena, int32_t* const argc, const char_t*** const argv);
+
+lasm_template_type_e lasm_template_type_from_string(const char_t* const template_as_string)
+{
+	lasm_debug_assert(template_as_string != NULL);
+
+	for (uint64_t index = 0; index < lasm_template_types_count; ++index)
+	{
+		const char_t* template = _g_supported_templates[index];
+		lasm_debug_assert(template != NULL);
+
+		const uint64_t template_length = lasm_common_strlen(template);
+		lasm_debug_assert(template_length > 0);
+
+		const uint64_t arch_as_string_length = lasm_common_strlen(template_as_string);
+		lasm_debug_assert(arch_as_string_length > 0);
+
+		if ((arch_as_string_length == template_length) && (lasm_common_strncmp(template_as_string, template, arch_as_string_length) == 0))
+		{
+			return index;
+		}
+	}
+
+	return lasm_template_type_none;
+}
 
 lasm_arch_type_e lasm_arch_type_from_string(const char_t* const arch_as_string)
 {
+	lasm_debug_assert(arch_as_string != NULL);
+
 	for (uint64_t index = 0; index < lasm_arch_types_count; ++index)
 	{
 		const char_t* arch = _g_supported_archs[index];
@@ -96,6 +140,8 @@ lasm_arch_type_e lasm_arch_type_from_string(const char_t* const arch_as_string)
 
 lasm_format_type_e lasm_format_type_from_string(const char_t* const format_as_string)
 {
+	lasm_debug_assert(format_as_string != NULL);
+
 	for (uint64_t index = 0; index < lasm_format_types_count; ++index)
 	{
 		const char_t* format = _g_supported_formats[index];
@@ -136,7 +182,11 @@ lasm_config_s lasm_config_from_cli(lasm_arena_s* const arena, int32_t* const arg
 	const char_t* const command = _shift_cli_args(argc, argv);
 	lasm_debug_assert(command != NULL);
 
-	if (lasm_common_strcmp(command, "build") == 0)
+	if (lasm_common_strcmp(command, "init") == 0)
+	{
+		return _parse_init_command(arena, argc, argv);
+	}
+	else if (lasm_common_strcmp(command, "build") == 0)
 	{
 		return _parse_build_command(arena, argc, argv);
 	}
@@ -182,6 +232,35 @@ static const char_t* _get_file_name_from_path(const char_t* const path)
 	}
 
 	return path;
+}
+
+static const char_t* _supported_templates_to_string(void)
+{
+	#define templates_list_string_buffer_capacity 512
+	static char_t templates_list_string_buffer[templates_list_string_buffer_capacity + 1];
+	uint64_t written = 0;
+
+	for (uint64_t index = 0; index < lasm_template_types_count; ++index)
+	{
+		written += (uint64_t)snprintf(templates_list_string_buffer + written, templates_list_string_buffer_capacity - written, "%s", _g_supported_templates[index]);
+
+		if ((index + 1) >= lasm_template_types_count)
+		{
+			break;
+		}
+
+		if ((index + 1) < lasm_template_types_count)
+		{
+			written += (uint64_t)snprintf(templates_list_string_buffer + written, templates_list_string_buffer_capacity - written, "%s", ", ");
+
+			if ((index + 2) == lasm_template_types_count)
+			{
+				written += (uint64_t)snprintf(templates_list_string_buffer + written, templates_list_string_buffer_capacity - written, "%s", "and ");
+			}
+		}
+	}
+
+	return templates_list_string_buffer;
 }
 
 static const char_t* _supported_archs_to_string(void)
@@ -241,7 +320,7 @@ static void _print_usage_banner(void)
 {
 	lasm_debug_assert(_g_usage_banner != NULL);
 	lasm_debug_assert(_g_program != NULL);
-	lasm_logger_log(_g_usage_banner, _g_program, _supported_archs_to_string(), _supported_formats_to_string());
+	lasm_logger_log(_g_usage_banner, _g_program, _supported_templates_to_string(), _supported_archs_to_string(), _supported_formats_to_string());
 }
 
 static const char_t* _shift_cli_args(int32_t* const argc, const char_t*** const argv)
@@ -293,6 +372,86 @@ static const char_t* _get_option_argument(const char_t* const option, int32_t* c
 	}
 
 	return argument;
+}
+
+static lasm_config_s _parse_init_command(lasm_arena_s* const arena, int32_t* const argc, const char_t*** const argv)
+{
+	lasm_debug_assert(arena != NULL);
+	lasm_debug_assert(argc != NULL);
+	lasm_debug_assert(argv != NULL);
+
+	const char_t* directory = NULL;
+	const char_t* template  = NULL;
+
+	for (uint64_t index = 0; true; ++index)
+	{
+		const char_t* const option = _shift_cli_args(argc, argv);
+
+		if (NULL == option)
+		{
+			break;
+		}
+
+		if (_match_cli_option(option, "--template", "-t"))
+		{
+			if (template != NULL)
+			{
+				lasm_logger_error("multiple --template, -t arguments found in the command line arguments in 'init' command.");
+				_print_usage_banner();
+				lasm_common_exit(1);
+			}
+
+			const char_t* const template_as_string = _get_option_argument(option, argc, argv);
+			lasm_debug_assert(template_as_string != NULL);
+			template = template_as_string;
+		}
+		else
+		{
+			if (directory != NULL)
+			{
+				lasm_logger_error("multiple directories found in the command line arguments in 'init' command: %s.", option);
+				_print_usage_banner();
+				lasm_common_exit(1);
+			}
+
+			directory = option;
+		}
+	}
+
+	if (NULL == template)
+	{
+		lasm_logger_error("no template was provided in the command line arguments in 'init' command. supported templates are: %s.", _supported_templates_to_string());
+		_print_usage_banner();
+		lasm_common_exit(1);
+	}
+	else
+	{
+		if (lasm_template_type_none == lasm_template_type_from_string(template))
+		{
+			lasm_logger_error("an invalid template was provided in the command line arguments in 'init' command: %s. supported templates are: %s.", template, _supported_templates_to_string());
+			_print_usage_banner();
+			lasm_common_exit(1);
+		}
+	}
+
+	if (NULL == directory)
+	{
+		lasm_logger_error("directory was not provided in 'init' command.");
+		_print_usage_banner();
+		lasm_common_exit(1);
+	}
+
+	const lasm_config_init_s init_config = (const lasm_config_init_s)
+	{
+		.directory = directory                               ,
+		.template  = lasm_template_type_from_string(template),
+	};
+
+	return (lasm_config_s)
+	{
+		.type    = lasm_config_type_init,
+		.as.init = init_config          ,
+	};
 }
 
 static lasm_config_s _parse_build_command(lasm_arena_s* const arena, int32_t* const argc, const char_t*** const argv)
@@ -372,7 +531,7 @@ static lasm_config_s _parse_build_command(lasm_arena_s* const arena, int32_t* co
 		{
 			if (source != NULL)
 			{
-				lasm_logger_error("multiple source files found in the command line arguments in 'build' command.");
+				lasm_logger_error("multiple source files found in the command line arguments in 'build' command: %s.", option);
 				_print_usage_banner();
 				lasm_common_exit(1);
 			}
@@ -445,12 +604,18 @@ static lasm_config_s _parse_build_command(lasm_arena_s* const arena, int32_t* co
 		lasm_common_exit(1);
 	}
 
+	const lasm_config_build_s build_config = (const lasm_config_build_s)
+	{
+		.arch       = lasm_arch_type_from_string(arch)    ,
+		.format     = lasm_format_type_from_string(format),
+		.entry      = entry                               ,
+		.output     = output                              ,
+		.source     = source                              ,
+	};
+
 	return (lasm_config_s)
 	{
-		.arch   = arch  ,
-		.format = format,
-		.entry  = entry ,
-		.output = output,
-		.source = source,
+		.type     = lasm_config_type_build,
+		.as.build = build_config,
 	};
 }

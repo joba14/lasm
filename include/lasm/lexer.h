@@ -22,7 +22,7 @@
 typedef struct
 {
 	lasm_arena_s* arena;
-	lasm_config_s* config;
+	lasm_config_build_s* config;
 
 	FILE* file;
 	lasm_location_s location;
@@ -45,7 +45,16 @@ typedef struct
  * 
  * @return lasm_lexer_s
  */
-lasm_lexer_s lasm_lexer_new(lasm_arena_s* const arena, lasm_config_s* const config);
+
+/**
+ * @brief Create a lexer.
+ * 
+ * @param arena  arena reference
+ * @param config build config reference
+ * 
+ * @return lasm_lexer_s
+ */
+lasm_lexer_s lasm_lexer_new(lasm_arena_s* const arena, lasm_config_build_s* const config);
 
 /**
  * @brief Drop the lexer and close the file that is bound to it.

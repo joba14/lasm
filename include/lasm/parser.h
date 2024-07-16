@@ -22,7 +22,7 @@
 typedef struct
 {
 	lasm_arena_s* arena;
-	lasm_config_s* config;
+	lasm_config_build_s* config;
 	lasm_lexer_s lexer;
 	lasm_labels_vector_s labels;
 } lasm_parser_s;
@@ -30,12 +30,12 @@ typedef struct
 /**
  * @brief Create a parser.
  * 
- * @param arena     arena reference
- * @param file_path path to file to be bound to the parser
+ * @param arena  arena reference
+ * @param config build config reference
  * 
  * @return lasm_parser_s
  */
-lasm_parser_s lasm_parser_new(lasm_arena_s* const arena, lasm_config_s* const config);
+lasm_parser_s lasm_parser_new(lasm_arena_s* const arena, lasm_config_build_s* const config);
 
 /**
  * @brief Drop the parser and close the file that is bound to it.

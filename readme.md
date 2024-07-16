@@ -288,6 +288,11 @@ To check the version of the assembler, run the following command:
 > lasm version
 ```
 
+To initialize a directory as a lasm project, follow the command below:
+```sh
+> lasm init -t <template> <directory>
+```
+
 To build a source file into an executable, follow the command below:
 ```sh
 > lasm build -a <arch> -f <format> -o <output.out> <source.lasm>
