@@ -175,6 +175,7 @@ static void make_linter_command(build_command_s* const command, const build_conf
 		"-Dlasm_version_minor="stringify(version_minor),
 		"-Dlasm_version_patch="stringify(version_patch),
 		"-Dlasm_version_dev="stringify(version_dev),
+		"-j", "20",
 	);
 
 	switch (conf)
