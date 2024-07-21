@@ -1,6 +1,6 @@
 
 #define stdlib_addr 0x0F00
-#define stdlib_align 8
+#define stdlib_align 2
 #include "rl78/stdlib.lasm"
 
 

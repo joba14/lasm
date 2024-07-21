@@ -4,7 +4,7 @@
 
 include_paths := -I. -I./../../../stdlib
 
-lasm_flags := -a z80 -f elf64 -e _start
+lasm_flags := -a rl78 -f elf64 -e _start
 
 source_file := main.lasm
 output_name := hello_world

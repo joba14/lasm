@@ -37,6 +37,7 @@ static const char_t* const sources[] =
 	"./source/lasm/ast.c",
 	"./source/lasm/parser.c",
 	"./source/lasm/archs/z80_parser.c",
+	"./source/lasm/archs/rl78_parser.c",
 	"./source/main.c",
 };
 
@@ -124,10 +125,10 @@ static void make_compiler_command(build_command_s* const command, const build_co
 		"-Wunreachable-code",
 		"-std=gnu11",
 		"-I./include",
-		"-Dlasm_version_major="stringify(version_major),
-		"-Dlasm_version_minor="stringify(version_minor),
-		"-Dlasm_version_patch="stringify(version_patch),
-		"-Dlasm_version_dev="stringify(version_dev),
+		"-Dlasm_version_major=" stringify(version_major),
+		"-Dlasm_version_minor=" stringify(version_minor),
+		"-Dlasm_version_patch=" stringify(version_patch),
+		"-Dlasm_version_dev=" stringify(version_dev),
 	);
 
 	switch (conf)

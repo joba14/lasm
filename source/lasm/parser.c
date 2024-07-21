@@ -14,6 +14,7 @@
 #include "lasm/debug.h"
 #include "lasm/logger.h"
 #include "lasm/archs/z80_parser.h"
+#include "lasm/archs/rl78_parser.h"
 
 #define _log_parser_note(_location, _format, ...)                              \
 	do                                                                         \
@@ -553,6 +554,12 @@ static void _parse_label_body(lasm_parser_s* const parser, lasm_ast_label_s* con
 		{
 			// todo: parse the z80 assembly!
 			z80_parser_parse_tokens(&parser->lexer, &parser->labels, label);
+		} break;
+
+		case lasm_arch_type_rl78:
+		{
+			// todo: parse the rl78 assembly!
+			rl78_parser_parse_tokens(&parser->lexer, &parser->labels, label);
 		} break;
 
 		default:
