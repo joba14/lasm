@@ -542,6 +542,7 @@ static void _push_utf8char(lasm_lexer_s* const lexer, const utf8char_t c, const 
 {
 	lasm_debug_assert(lexer != NULL);
 	lasm_debug_assert(lasm_utf8_invalid == lexer->cache[1]);
+
 	lexer->cache[1] = lexer->cache[0];
 	lexer->cache[0] = c;
 
@@ -686,7 +687,6 @@ static lasm_token_type_e _lex_numeric_literal_token(lasm_lexer_s* const lexer, l
 	};
 
 	int32_t state = base_dec;
-	int32_t old_state = base_dec;
 	int32_t base = 10;
 
 	utf8char_t c = _next_utf8char(lexer, &token->location, true), last = 0;
@@ -732,12 +732,7 @@ static lasm_token_type_e _lex_numeric_literal_token(lasm_lexer_s* const lexer, l
 			last = c;
 			continue;
 		}
-		else if (c > 0x7f)
-		{
-			goto end;
-		}
 
-		old_state = state;
 		goto end;
 	} while ((c = _next_utf8char(lexer, NULL, true)) != lasm_utf8_invalid);
 
@@ -746,7 +741,6 @@ static lasm_token_type_e _lex_numeric_literal_token(lasm_lexer_s* const lexer, l
 end:
 	if (last && !lasm_common_strchr(formats_chars[state & base_mask], (int32_t)last))
 	{
-		state = old_state;
 		_push_utf8char(lexer, c, true);
 		_push_utf8char(lexer, last, true);
 	}
@@ -755,15 +749,7 @@ end:
 		_push_utf8char(lexer, c, true);
 	}
 
-	typedef enum { kind_unknown = -1, kind_iconst, kind_unsigned, } kind_e;
-	kind_e kind = kind_unknown;
-
-	if (kind_unknown == kind)
-	{
-		kind = kind_iconst;
-		token->type = lasm_token_type_literal_uval;
-	}
-
+	token->type = lasm_token_type_literal_uval;
 	uint64_t exponent = 0;
 	errno = 0;
 
@@ -781,7 +767,7 @@ end:
 		_log_lexer_error(token->location, "integer literal overflow.");
 	}
 
-	if ((kind_iconst == kind) && (token->as.uval > (uint64_t)INT64_MAX))
+	if (token->as.uval > (uint64_t)INT64_MAX)
 	{
 		token->type = lasm_token_type_literal_uval;
 	}
@@ -981,11 +967,12 @@ static lasm_token_type_e _lex_single_line_string_literal_token(lasm_lexer_s* con
 	};
 
 	utf8char_t c;
+
 	while (((c = _next_utf8char(lexer, NULL, false)) != lasm_utf8_invalid) && (c != '\"'))
 	{
 		switch (c)
 		{
-				    //  _________ note: all of these symbols are supported as escape sequences.
+					    //  _________ note: all of these symbols are supported as escape sequences.
 			case '\0':  // /////////
 			case '\a':  // ////////
 			case '\b':  // ///////
