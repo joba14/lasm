@@ -18,47 +18,51 @@
 
 static const char_t* _g_program = NULL;
 
-static const char_t* const _g_usage_banner =
-	"usage: %s <command>\n"
-	"\n"
-	"commands:\n"
-	"    init <-t template> <directory>      initialize provided directory with a specified template. warning: it will\n"
-	"                                        overwrite the existing build script and the entry.lasm file if they are\n"
-	"                                        in the provided directory!\n"
-	"        required:\n"
-	"            -t, --template <name>       set the build system script template format to create a build script file\n"
-	"                                        in the provided directory. supported templates are: %s.\n"
-	"            <directory>                 directory to use as a root of the project.\n"
-	"\n"
-	"    build [options] <source.lasm>       build the project with provided source file.\n"
-	"        required:\n"
-	"            -a, --arch <name>           set the target architecture for the executable. supported architectures\n"
-	"                                        are: %s.\n"
-	"            -f, --format <name>         set the target format for the executable. supported formats are:\n"
-	"                                        %s.\n"
-	"            <source.lasm>               source file to build.\n"
-	"        optional:\n"
-	"            -e, --entry <name>          set the entry name symbol for the executable. defaults to the\n"
-	"                                        name \'main\'.\n"
-	"            -o, --output <path>         set the output path for the executable. defaults to the name of\n"
-	"                                        provided source file with extension removed if not provided.\n"
-	"\n"
-	"    help                                print this help message banner.\n"
-	"\n"
-	"    version                             print the version of this executable.\n"
-	"\n"
-	"notice:\n"
-	"    this executable is distributed under the \"lasm gplv1\" license.\n";
+const char_t _g_usage_banner[] =
+	"usage: %s <command>                                                                                                                                                           \n" \
+	"                                                                                                                                                                              \n" \
+	"commands:                                                                                                                                                                     \n" \
+	"    init <-t template> <directory>      initialize provided directory with a specified template. warning: it will overwrite the existing build script and the entry.lasm file!\n" \
+	"        required:                                                                                                                                                             \n" \
+	"            -t, --template <name>       set the build system script template format to create a build script file in the provided directory. supported templates are: %s.     \n" \
+	"            <directory>                 directory to use as a root of the project.                                                                                            \n" \
+	"                                                                                                                                                                              \n" \
+	"    build [options] <source.lasm>       build the project with provided source file.                                                                                          \n" \
+	"        required:                                                                                                                                                             \n" \
+	"            -a, --arch <name>           set the target architecture for the executable. supported architectures are: %s.                                                      \n" \
+	"            -f, --format <name>         set the target format for the executable. supported formats are: %s.                                                                  \n" \
+	"            <source.lasm>               source file to build.                                                                                                                 \n" \
+	"        optional:                                                                                                                                                             \n" \
+	"            -e, --entry <name>          set the entry name symbol for the executable. defaults to the name \'main\'.                                                          \n" \
+	"            -o, --output <path>         set the output path for the executable. defaults to the name of provided source file with extension removed if not provided.          \n" \
+	"                                                                                                                                                                              \n" \
+	"    help                                print this help message banner.                                                                                                       \n" \
+	"                                                                                                                                                                              \n" \
+	"    version                             print the version of this executable.                                                                                                 \n" \
+	"                                                                                                                                                                              \n" \
+	"notice:                                                                                                                                                                       \n" \
+	"    this executable is distributed under the \"lasm gplv1\" license.                                                                                                          \n";
 
 static const char_t* _g_supported_templates[lasm_template_types_count] =
 {
 	[lasm_template_type_make] = "make",
 };
 
+_Static_assert(
+	lasm_template_types_count == 1,
+	"_g_supported_templates is not in sync with lasm_template_type_e enum!"
+);
+
 static const char_t* _g_supported_archs[lasm_arch_types_count] =
 {
-	[lasm_arch_type_z80] = "z80",
+	[lasm_arch_type_z80]    = "z80"   ,
+	[lasm_arch_type_x64_86] = "x64_86",
 };
+
+_Static_assert(
+	lasm_arch_types_count == 2,
+	"_g_supported_archs is not in sync with lasm_arch_type_e enum!"
+);
 
 static const char_t* _g_supported_formats[lasm_format_types_count] =
 {
@@ -69,6 +73,11 @@ static const char_t* _g_supported_formats[lasm_format_types_count] =
 	[lasm_format_type_pe32]     = "pe32" ,
 	[lasm_format_type_pe32plus] = "pe32+",
 };
+
+_Static_assert(
+	lasm_format_types_count == 6,
+	"_g_supported_formats is not in sync with lasm_format_type_e enum!"
+);
 
 static const char_t* _get_file_name_from_path(const char_t* const path);
 
@@ -302,11 +311,16 @@ static const char_t* _supported_formats_to_string(void)
 	{
 		written += (uint64_t)snprintf(formats_list_string_buffer + written, formats_list_string_buffer_capacity - written, "%s", _g_supported_formats[index]);
 
-		if (index < (lasm_format_types_count - 1))
+		if ((index + 1) >= lasm_format_types_count)
+		{
+			break;
+		}
+
+		if ((index + 1) < lasm_format_types_count)
 		{
 			written += (uint64_t)snprintf(formats_list_string_buffer + written, formats_list_string_buffer_capacity - written, "%s", ", ");
 
-			if (index == (lasm_format_types_count - 2))
+			if ((index + 2) == lasm_format_types_count)
 			{
 				written += (uint64_t)snprintf(formats_list_string_buffer + written, formats_list_string_buffer_capacity - written, "%s", "and ");
 			}

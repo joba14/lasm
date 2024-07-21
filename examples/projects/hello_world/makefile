@@ -2,7 +2,7 @@
 # ------------------------------------------------------------------ #
 # config
 
-include_paths := -I.
+include_paths := -I. -I./../../../stdlib
 
 lasm_flags := -a z80 -f elf64 -e _start
 

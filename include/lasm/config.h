@@ -28,6 +28,7 @@ lasm_template_type_e lasm_template_type_from_string(const char_t* const template
 typedef enum
 {
 	lasm_arch_type_z80,
+	lasm_arch_type_x64_86,
 	lasm_arch_types_count,
 	lasm_arch_type_none,
 } lasm_arch_type_e;

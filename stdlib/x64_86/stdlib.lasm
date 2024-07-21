@@ -9,6 +9,7 @@
 #	error "The stdlib_align is not defined!"
 #endif
 
+
 [addr=stdlib_addr, align=stdlib_align, size=0, perm=rx,]
 _stdlib_meta:
 end
@@ -16,7 +17,6 @@ end
 
 [addr=auto, align=auto, size=auto, perm=auto,]
 memset:
-#if _arch == x64_86
 	; brief: set bytes in a memory region to provided value.
 	; 
 	; param: rdi: pointer
@@ -31,7 +31,4 @@ memset:
 		jmp .loop_begin
 	.loop_end:
 		ret
-#else
-#	error "invalid architecture!"
-#endif
 end
