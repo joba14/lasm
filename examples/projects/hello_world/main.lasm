@@ -1,11 +1,9 @@
 
-#ifndef __main_lasm__
-#define __main_lasm__
+#define stdlib_addr 0x0F00
+#define stdlib_align 8
+#include "./../../../stdlib/stdlib.lasm"
 
-#define __alignment__ 8
-
-
-[addr=0, align=__alignment__, size=0, perm=rx,]
+[addr=0, align=auto, size=0, perm=rx,]
 _meta:
 end
 
@@ -16,5 +14,3 @@ _start:
 	nop
 	nop
 end
-
-#endif

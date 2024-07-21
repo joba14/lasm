@@ -74,7 +74,7 @@
 				},
 				{
 					"name": "string.regexp",
-					"match": "(^#)(include|define|ifndef|ifdef|undef|endif)"
+					"match": "(^#)[\\s]*(pragma|once|include|define|ifndef|ifdef|if|elif|else|undef|endif|error)"
 				}
 			]
 		},

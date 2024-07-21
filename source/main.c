@@ -113,7 +113,7 @@ static void build(lasm_arena_s* const arena, lasm_config_build_s* const config)
 	for (uint64_t index = 0; index < labels.count; ++index)
 	{
 		lasm_ast_label_s* const label = lasm_labels_vector_at((lasm_labels_vector_s* const)&labels, index);
-		lasm_logger_info("\n%s\n", lasm_ast_label_to_string(label));
+		lasm_logger_info(lasm_location_fmt "\n%s\n", lasm_location_arg(label->location), lasm_ast_label_to_string(label));
 	}
 
 	// todo: when building the final executable file of provided format, if the

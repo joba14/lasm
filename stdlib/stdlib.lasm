@@ -1,0 +1,37 @@
+
+#pragma once
+
+#ifndef stdlib_addr
+#	error "The stdlib_addr is not defined!"
+#endif
+
+#ifndef stdlib_align
+#	error "The stdlib_align is not defined!"
+#endif
+
+[addr=stdlib_addr, align=stdlib_align, size=0, perm=rx,]
+_stdlib_meta:
+end
+
+
+[addr=auto, align=auto, size=auto, perm=auto,]
+memset:
+#if _arch == x64_86
+	; brief: set bytes in a memory region to provided value.
+	; 
+	; param: rdi: pointer
+	; param: rsi: length
+	; param: rdx: value
+	mov rax, 0
+	.loop_begin:
+		cmp rax, rsi
+		jge .loop_end
+			mov [rdi + rax], rdx
+		inc rax
+		jmp .loop_begin
+	.loop_end:
+		ret
+#else
+#	error "invalid architecture!"
+#endif
+end

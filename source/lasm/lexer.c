@@ -273,7 +273,7 @@ lasm_lexer_s lasm_lexer_new(lasm_arena_s* const arena, lasm_config_build_s* cons
 	char_t* const buffer = lasm_arena_alloc(arena, buffer_capacity * sizeof(char_t));
 	lasm_debug_assert(buffer != NULL);
 
-	return (lasm_lexer_s)
+	return (const lasm_lexer_s)
 	{
 		.arena  = arena,
 		.config = config,
@@ -282,7 +282,7 @@ lasm_lexer_s lasm_lexer_new(lasm_arena_s* const arena, lasm_config_build_s* cons
 		{
 			.type = lasm_token_type_none,
 		},
-		.location = (lasm_location_s)
+		.location = (const lasm_location_s)
 		{
 			.file   = config->source,
 			.line   = 1,
@@ -368,7 +368,7 @@ lasm_token_type_e lasm_lexer_lex(lasm_lexer_s* const lexer, lasm_token_s* const 
 				_log_lexer_error(file_location, "invalid #line directive encountered (file name): '%.*s'", (int32_t)size, buffer);
 			}
 
-			lexer->location = (lasm_location_s)
+			lexer->location = (const lasm_location_s)
 			{
 				.file   = file_token.as.ident.data,
 				.line   = line_token.as.uval - 1,
@@ -447,7 +447,11 @@ static void _append_buffer(lasm_lexer_s* const lexer, const char_t* const buffer
 		char_t* const data = lasm_arena_alloc(lexer->arena, lexer->buffer.capacity);
 		lasm_debug_assert(data != NULL);
 
-		for (uint64_t index = 0; index < lexer->buffer.length; ++index) data[index] = lexer->buffer.data[index];
+		for (uint64_t index = 0; index < lexer->buffer.length; ++index)
+		{
+			data[index] = lexer->buffer.data[index];
+		}
+
 		lexer->buffer.data = data;
 	}
 
@@ -472,7 +476,7 @@ static utf8char_t _next_utf8char(lasm_lexer_s* const lexer, lasm_location_s* con
 		c = lasm_utf8_get(lexer->file);
 		_update_location(&lexer->location, c);
 
-		if ((lasm_utf8_invalid == c) && (!feof(lexer->file)))
+		if ((lasm_utf8_invalid == c) && !feof(lexer->file))
 		{
 			static char_t utf8_buffer[lasm_utf8_max_size];
 			const uint8_t size = lasm_utf8_encode(utf8_buffer, c);
@@ -490,7 +494,7 @@ static utf8char_t _next_utf8char(lasm_lexer_s* const lexer, lasm_location_s* con
 		}
 	}
 
-	if ((lasm_utf8_invalid == c) || (!buffer))
+	if ((lasm_utf8_invalid == c) || !buffer)
 	{
 		return c;
 	}
@@ -575,6 +579,7 @@ static bool_t _skip_nested_multi_line_comments(lasm_lexer_s* const lexer, utf8ch
 	lasm_debug_assert(c != lasm_utf8_invalid);
 	
 	utf8char_t last_c = c; c = _next_utf8char(lexer, NULL, true);
+
 	while (((last_c = c, c = _next_utf8char(lexer, NULL, true)) != lasm_utf8_invalid) && ((last_c != '*') || (c != '/')))
 	{
 		if (('/' == last_c) && ('*' == c))
@@ -591,7 +596,7 @@ static bool_t _skip_nested_multi_line_comments(lasm_lexer_s* const lexer, utf8ch
 
 static uint64_t _compute_numeric_literal_exponent(uint64_t value, const uint64_t exponent, const bool_t is_signed)
 {
-	if (value == 0)
+	if (0 == value)
 	{
 		return 0;
 	}
@@ -601,7 +606,7 @@ static uint64_t _compute_numeric_literal_exponent(uint64_t value, const uint64_t
 		uint64_t old_value = value;
 		value *= 10;
 
-		if (value / 10 != old_value)
+		if ((value / 10) != old_value)
 		{
 			errno = ERANGE;
 			return (uint64_t)INT64_MAX;
@@ -649,7 +654,11 @@ static lasm_token_type_e _lex_keyword_or_identifier(lasm_lexer_s* const lexer, l
 	token->as.ident.data = lasm_arena_alloc(lexer->arena, lexer->buffer.length);
 	lasm_debug_assert(token->as.ident.data != NULL);
 
-	for (uint64_t index = 0; index < lexer->buffer.length; ++index) token->as.ident.data[index] = lexer->buffer.data[index];
+	for (uint64_t index = 0; index < lexer->buffer.length; ++index)
+	{
+		token->as.ident.data[index] = lexer->buffer.data[index];
+	}
+
 	token->as.ident.length = lexer->buffer.length;
 	_clear_buffer(lexer);
 	return token->type;
@@ -663,7 +672,7 @@ static lasm_token_type_e _lex_numeric_literal_token(lasm_lexer_s* const lexer, l
 	// enum { flag_flt = 3, flag_exp, flag_suff, flag_dig, };
 	enum { base_bin = 1, base_oct, base_hex, base_dec = 0x07, base_mask = base_dec, };
 	_Static_assert((base_bin | base_oct | base_hex | base_dec) == base_dec,
-		"base_dec bits must be a superset of all other bases"
+		"base_dec bits must be a superset of all other bases!"
 	);
 
 	static const char_t formats_chars[][24] =
@@ -727,22 +736,13 @@ static lasm_token_type_e _lex_numeric_literal_token(lasm_lexer_s* const lexer, l
 		}
 
 		old_state = state;
-
-		switch (c)
-		{
-			default:
-			{
-				goto end;
-			} break;
-		}
-
-		last = c;
+		goto end;
 	} while ((c = _next_utf8char(lexer, NULL, true)) != lasm_utf8_invalid);
 
 	last = 0;
 
 end:
-	if (last && (!lasm_common_strchr("su", (int32_t)last)) && (!lasm_common_strchr(formats_chars[state & base_mask], (int32_t)last)))
+	if (last && !lasm_common_strchr(formats_chars[state & base_mask], (int32_t)last))
 	{
 		state = old_state;
 		_push_utf8char(lexer, c, true);
@@ -774,7 +774,7 @@ end:
 	token->as.uval = strtoumax(lexer->buffer.data + prefix_offset, NULL, base);
 	token->as.uval = _compute_numeric_literal_exponent(token->as.uval, exponent, false);
 
-	if (errno == ERANGE)
+	if (ERANGE == errno)
 	{
 		_log_lexer_error(token->location, "integer literal overflow.");
 	}
@@ -906,7 +906,7 @@ static lasm_token_type_e _lex_rune_literal_token(lasm_lexer_s* const lexer, lasm
 	lasm_debug_assert(lexer != NULL);
 	lasm_debug_assert(token != NULL);
 
-	token->location = (lasm_location_s)
+	token->location = (const lasm_location_s)
 	{
 		.file   = lexer->location.file,
 		.line   = lexer->location.line,
@@ -925,7 +925,6 @@ static lasm_token_type_e _lex_rune_literal_token(lasm_lexer_s* const lexer, lasm
 		case '\\':
 		{
 			char_t buffer[lasm_utf8_max_size + 1];
-
 			_push_utf8char(lexer, c, false);
 			(void)_decode_single_rune(lexer, buffer);
 
@@ -972,7 +971,7 @@ static lasm_token_type_e _lex_single_line_string_literal_token(lasm_lexer_s* con
 	lasm_debug_assert(lexer != NULL);
 	lasm_debug_assert(token != NULL);
 
-	token->location = (lasm_location_s)
+	token->location = (const lasm_location_s)
 	{
 		.file   = lexer->location.file,
 		.line   = lexer->location.line,
@@ -1006,7 +1005,7 @@ static lasm_token_type_e _lex_single_line_string_literal_token(lasm_lexer_s* con
 		_append_buffer(lexer, buffer, size);
 	}
 
-	if (c == lasm_utf8_invalid)
+	if (lasm_utf8_invalid == c)
 	{
 		_log_lexer_error(token->location, "unclosed single line string literal found!");
 	}

@@ -44,6 +44,14 @@ void lasm_logger_info(const char_t* const format, ...)
 	va_end(args);
 }
 
+void lasm_logger_note(const char_t* const format, ...)
+{
+	lasm_debug_assert(format != NULL);
+	va_list args; va_start(args, format);
+	_log_with_tag(stdout, lasm_cyan "note" lasm_reset, format, args);
+	va_end(args);
+}
+
 void lasm_logger_warn(const char_t* const format, ...)
 {
 	lasm_debug_assert(format != NULL);

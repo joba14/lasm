@@ -15,11 +15,13 @@
 
 #include "lasm/common.h"
 
-#define lasm_red    "\033[91m"
-#define lasm_yellow "\033[93m"
-#define lasm_green  "\033[92m"
-#define lasm_blue   "\033[34m"
-#define lasm_reset  "\033[0m"
+#define lasm_red     "\033[91m"
+#define lasm_yellow  "\033[93m"
+#define lasm_green   "\033[92m"
+#define lasm_blue    "\033[34m"
+#define lasm_magenta "\033[35m"
+#define lasm_cyan    "\033[36m"
+#define lasm_reset   "\033[0m"
 
 /**
  * @brief Log tagless level formattable messages.
@@ -56,6 +58,14 @@ void _lasm_logger_debug_impl(const char_t* const format, ...) __attribute__ ((fo
  * @param ...    arguments of the log
  */
 void lasm_logger_info(const char_t* const format, ...) __attribute__ ((format (printf, 1, 2)));
+
+/**
+ * @brief Log note level formattable messages.
+ * 
+ * @param format format of the log
+ * @param ...    arguments of the log
+ */
+void lasm_logger_note(const char_t* const format, ...) __attribute__ ((format (printf, 1, 2)));
 
 /**
  * @brief Log warn level formattable messages.
