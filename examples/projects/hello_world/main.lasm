@@ -1,7 +1,7 @@
 
 #define stdlib_addr 0x0F00
 #define stdlib_align 8
-#include "x64_86/stdlib.lasm"
+#include "rl78/stdlib.lasm"
 
 
 [addr=0, align=auto, size=0, perm=rx,]

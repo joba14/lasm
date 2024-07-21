@@ -1,0 +1,27 @@
+
+#pragma once
+
+#ifndef stdlib_addr
+#	error "The stdlib_addr is not defined!"
+#endif
+
+#ifndef stdlib_align
+#	error "The stdlib_align is not defined!"
+#endif
+
+
+[addr=stdlib_addr, align=stdlib_align, size=0, perm=rx,]
+_stdlib_meta:
+end
+
+
+[addr=auto, align=auto, size=auto, perm=auto,]
+memset:
+	; brief: set bytes in a memory region to provided value.
+	; 
+	; param: ; todo!: pointer
+	; param: ; todo!: length
+	; param: ; todo!: value
+
+	; todo!
+end

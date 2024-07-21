@@ -55,8 +55,8 @@ _Static_assert(
 
 static const char_t* _g_supported_archs[lasm_arch_types_count] =
 {
-	[lasm_arch_type_z80]    = "z80"   ,
-	[lasm_arch_type_x64_86] = "x64_86",
+	[lasm_arch_type_z80]  = "z80" ,
+	[lasm_arch_type_rl78] = "rl78",
 };
 
 _Static_assert(
@@ -206,9 +206,18 @@ lasm_config_s lasm_config_from_cli(lasm_arena_s* const arena, int32_t* const arg
 	}
 	else if (lasm_common_strcmp(command, "version") == 0)
 	{
-#if !defined(lasm_version_major) || !defined(lasm_version_minor) || !defined(lasm_version_patch)
-#	error "missing lasm_version_* definition(s)!"
+#if !defined(lasm_version_major)
+#	error "missing 'lasm_version_major' definition!"
 #endif
+
+#if !defined(lasm_version_minor)
+#	error "missing 'lasm_version_minor' definition!"
+#endif
+
+#if !defined(lasm_version_patch)
+#	error "missing 'lasm_version_patch' definition!"
+#endif
+
 		lasm_logger_log("%s v%u.%u.%u_d%u", _g_program, lasm_version_major, lasm_version_minor, lasm_version_patch, lasm_version_dev);
 		lasm_common_exit(0);
 	}
@@ -220,7 +229,7 @@ lasm_config_s lasm_config_from_cli(lasm_arena_s* const arena, int32_t* const arg
 	}
 
 	lasm_debug_assert(0); // note: should not be reached.
-	return (lasm_config_s) {0};
+	return (const lasm_config_s) {0};
 }
 
 static const char_t* _get_file_name_from_path(const char_t* const path)
@@ -365,7 +374,7 @@ static bool_t _match_cli_option(const char_t* const option, const char_t* const 
 	const uint64_t short_name_length = lasm_common_strlen(short_name);
 
 	return (
-		((option_length == long_name_length ) && (lasm_common_strncmp(option, long_name, option_length ) == 0)) ||
+		((option_length == long_name_length ) && (lasm_common_strncmp(option, long_name, option_length ) == 0)) || \
 		((option_length == short_name_length) && (lasm_common_strncmp(option, short_name, option_length) == 0))
 	);
 }
@@ -461,7 +470,7 @@ static lasm_config_s _parse_init_command(lasm_arena_s* const arena, int32_t* con
 		.template  = lasm_template_type_from_string(template),
 	};
 
-	return (lasm_config_s)
+	return (const lasm_config_s)
 	{
 		.type    = lasm_config_type_init,
 		.as.init = init_config          ,
@@ -627,9 +636,9 @@ static lasm_config_s _parse_build_command(lasm_arena_s* const arena, int32_t* co
 		.source     = source                              ,
 	};
 
-	return (lasm_config_s)
+	return (const lasm_config_s)
 	{
 		.type     = lasm_config_type_build,
-		.as.build = build_config,
+		.as.build = build_config          ,
 	};
 }
