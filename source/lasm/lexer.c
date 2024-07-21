@@ -394,6 +394,8 @@ lasm_token_type_e lasm_lexer_lex(lasm_lexer_s* const lexer, lasm_token_s* const 
 		case ':':  { *token = lasm_token_new(lasm_token_type_symbolic_colon,         start_location); } break;
 		case '[':  { *token = lasm_token_new(lasm_token_type_symbolic_left_bracket,  start_location); } break;
 		case ']':  { *token = lasm_token_new(lasm_token_type_symbolic_right_bracket, start_location); } break;
+		case '+':  { *token = lasm_token_new(lasm_token_type_symbolic_plus,          start_location); } break;
+		case '-':  { *token = lasm_token_new(lasm_token_type_symbolic_minus,         start_location); } break;
 
 		// unknown/invalid tokens
 		default:

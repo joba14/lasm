@@ -3,14 +3,25 @@
 #define stdlib_align 8
 #include "./../../../stdlib/stdlib.lasm"
 
+
 [addr=0, align=auto, size=0, perm=rx,]
 _meta:
 end
 
 
+[addr=auto, align=auto, size=auto, perm=rw,]
+array:
+	db 0x01 0x02 0x03 0x04 0x05
+end
+
+
 [addr=auto, align=auto, size=auto, perm=auto,]
 _start:
-	nop
-	nop
-	nop
+	mov rsi, array
+	mov rdi, size array
+	call memset
+
+	mov rax, 60
+	mov rdi, 0
+	syscall
 end

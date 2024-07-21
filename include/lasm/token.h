@@ -31,7 +31,6 @@ typedef struct
 typedef enum
 {
 	// Reserved keyword tokens
-	lasm_token_type_keyword_entry,				// entry
 	lasm_token_type_keyword_addr,				// addr
 	lasm_token_type_keyword_align,				// align
 	lasm_token_type_keyword_size,				// size
@@ -52,6 +51,8 @@ typedef enum
 	lasm_token_type_symbolic_colon,				// :
 	lasm_token_type_symbolic_left_bracket,		// [
 	lasm_token_type_symbolic_right_bracket,		// ]
+	lasm_token_type_symbolic_plus,				// +
+	lasm_token_type_symbolic_minus,				// -
 	lasm_token_type_informationless_count,
 
 	// Tokens with additional information

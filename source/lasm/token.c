@@ -18,7 +18,6 @@
 
 static const char_t* const _g_token_type_to_string_map[] =
 {
-	[lasm_token_type_keyword_entry]				= "entry",
 	[lasm_token_type_keyword_addr]				= "addr",
 	[lasm_token_type_keyword_align]				= "align",
 	[lasm_token_type_keyword_size]				= "size",
@@ -36,15 +35,17 @@ static const char_t* const _g_token_type_to_string_map[] =
 	[lasm_token_type_symbolic_colon]			= ":",
 	[lasm_token_type_symbolic_left_bracket]		= "[",
 	[lasm_token_type_symbolic_right_bracket]	= "]",
+	[lasm_token_type_symbolic_plus]				= "+",
+	[lasm_token_type_symbolic_minus]			= "-",
 };
 
 _Static_assert(
-	lasm_token_type_keywords_count == 11,
+	lasm_token_type_keywords_count == 10,
 	"_g_token_type_to_string_map is not in sync with lasm_token_type_e enum!"
 );
 
 _Static_assert(
-	(lasm_token_type_informationless_count) == (sizeof(_g_token_type_to_string_map) / sizeof(_g_token_type_to_string_map[0])),
+	lasm_token_type_informationless_count == (sizeof(_g_token_type_to_string_map) / sizeof(_g_token_type_to_string_map[0])),
 	"_g_token_type_to_string_map is not in sync with lasm_token_type_e enum!"
 );
 
@@ -71,7 +72,7 @@ const char_t* lasm_token_type_to_string(const lasm_token_type_e type)
 
 lasm_token_s lasm_token_new(const lasm_token_type_e type, const lasm_location_s location)
 {
-	return (lasm_token_s)
+	return (const lasm_token_s)
 	{
 		.type     = type,
 		.location = location,
@@ -114,6 +115,9 @@ const char_t* lasm_token_to_string(const lasm_token_s* const token)
 
 		case lasm_token_type_literal_str:
 		{
+			lasm_debug_assert(token->as.str.data != NULL);
+			lasm_debug_assert(token->as.str.length > 0);
+
 			written += (uint64_t)snprintf(
 				token_string_buffer + written, token_string_buffer_capacity - written,
 				", data='%.*s'", (int32_t)token->as.str.length, token->as.str.data
@@ -124,6 +128,7 @@ const char_t* lasm_token_to_string(const lasm_token_s* const token)
 		{
 			lasm_debug_assert(token->as.ident.data != NULL);
 			lasm_debug_assert(token->as.ident.length > 0);
+
 			written += (uint64_t)snprintf(
 				token_string_buffer + written, token_string_buffer_capacity - written,
 				", data='%.*s'", (int32_t)token->as.ident.length, token->as.ident.data
